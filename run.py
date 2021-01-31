@@ -21,7 +21,7 @@ def saveSummonerData():
 
 def querySummonerCurrentRank(summoner):
     encryptedId = summoner.SummonerDTO["id"]
-    url = settings.API_URL + api_calls.LEAGUE_API_URL.format(encryptedSummonerId=encryptedId)
+    url = api_calls.BASE_API_URL + api_calls.LEAGUE_API_URL.format(encryptedSummonerId=encryptedId)
     response = requests.get(url, headers={consts.API_KEY_HEADER: settings.API_KEY})
     if response.status_code == 200:
         leagueEntrySet = response.json()
@@ -49,7 +49,7 @@ def querySummonerCurrentRank(summoner):
 
 def querySummonerCurrentGame(summoner):
     encryptedId = summoner.SummonerDTO["id"]
-    url = settings.API_URL + api_calls.SPECTATOR_API_URL.format(encryptedSummonerId=encryptedId)
+    url = api_calls.BASE_API_URL + api_calls.SPECTATOR_API_URL.format(encryptedSummonerId=encryptedId)
     response = requests.get(url, headers={consts.API_KEY_HEADER: settings.API_KEY})
     if response.status_code == 200:
         # Current Game Found

@@ -5,7 +5,9 @@ import api_calls
 import sys
 import consts
 import discord_bot
+import utils
 from periodic import PeriodicExecutor
+from datetime import datetime
 
 needsSave = False
 
@@ -33,16 +35,16 @@ def querySummonerCurrentRank(summoner):
         change = summoner.updateCurrentRank(rank)
         if change == 2:
             # Promoted to new Tier!
-            discord_bot.SendMessage(summoner.SummonerDTO["name"] + " has promoted to " + rank + "!!! <3")
+            discord_bot.SendMessage(summoner.SummonerDTO["name"] + " has promoted to " + rank + "!!! <3", utils.ColorCodes.GREEN)
         elif change == 1:
             # Promoted to new Division
-            discord_bot.SendMessage(summoner.SummonerDTO["name"] + " has promoted to " + rank + " <3")
+            discord_bot.SendMessage(summoner.SummonerDTO["name"] + " has promoted to " + rank + " <3", utils.ColorCodes.GREEN)
         elif change == -1:
             # Demoted to new Division
-            discord_bot.SendMessage(summoner.SummonerDTO["name"] + " has demoted to " + rank + " :(")
+            discord_bot.SendMessage(summoner.SummonerDTO["name"] + " has demoted to " + rank + " :(", utils.ColorCodes.RED)
         elif change == -2:
             # Demoted to new Tier
-            discord_bot.SendMessage(summoner.SummonerDTO["name"] + " has demoted to " + rank + " :( :(\nCan we get an F in the chat")
+            discord_bot.SendMessage(summoner.SummonerDTO["name"] + " has demoted to " + rank + " :( :(\nCan we get an F in the chat", utils.ColorCodes.RED)
         elif change == 3:
             # Newly assigned rank
             requestDataSave()
@@ -56,14 +58,15 @@ def querySummonerCurrentGame(summoner):
         newGameInfo = response.json()
         notify, reqSave = summoner.updateCurrentGame(newGameInfo)
         if notify:
-            discord_bot.SendMessage(summoner.SummonerDTO["name"] + " has started a ranked game!")
+            discord_bot.SendMessage(summoner.SummonerDTO["name"] + " has started a ranked game!", utils.ColorCodes.YELLOW)
         if reqSave:
             requestDataSave()
 
 
 def run(summonerData):
     # Need to run this loop every 5 mins
-    print("Querying Data For Summoners")
+    current_time = datetime.now().strftime("%d %b %Y - %H:%M:%S")
+    print("Querying Data For Summoners =>", current_time)
     for summonerName in summonerData:
         summoner = summonerData[summonerName]
         querySummonerCurrentGame(summoner)

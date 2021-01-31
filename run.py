@@ -33,16 +33,16 @@ def querySummonerCurrentRank(summoner):
         change = summoner.updateCurrentRank(rank)
         if change == 2:
             # Promoted to new Tier!
-            discord_bot.SendMessage(summonerName + " has promoted to", rank, "!!! <3")
+            discord_bot.SendMessage(summoner.SummonerDTO["name"] + " has promoted to " + rank + "!!! <3")
         elif change == 1:
             # Promoted to new Division
-            discord_bot.SendMessage(summonerName + " has promoted to", rank, "<3")
+            discord_bot.SendMessage(summoner.SummonerDTO["name"] + " has promoted to " + rank + " <3")
         elif change == -1:
             # Demoted to new Division
-            discord_bot.SendMessage(summonerName + " has demoted to", rank, ":(")
+            discord_bot.SendMessage(summoner.SummonerDTO["name"] + " has demoted to " + rank + " :(")
         elif change == -2:
             # Demoted to new Tier
-            discord_bot.SendMessage(summonerName + " has demoted to", rank, ":( :(\nCan we get an F in the chat")
+            discord_bot.SendMessage(summoner.SummonerDTO["name"] + " has demoted to " + rank + " :( :(\nCan we get an F in the chat")
         elif change == 3:
             # Newly assigned rank
             requestDataSave()

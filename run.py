@@ -165,8 +165,8 @@ def run(summonerData):
         querySummonerCurrentGame(summoner)
         querySummonerCurrentRank(summoner)
 
-    #if needsSave:
-    #    saveSummonerData()
+    if needsSave:
+        saveSummonerData()
     # Repeat every 5 mins upto here
 
 def printHelp():

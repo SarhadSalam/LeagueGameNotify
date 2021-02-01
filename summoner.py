@@ -46,9 +46,7 @@ class Summoner():
         else:
             change = -2
 
-        if change != 0:
-            self.CurrentRank = newRank
-
+        self.CurrentRank = newRank
         return change
 
     def toJson(self):

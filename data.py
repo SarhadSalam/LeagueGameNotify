@@ -8,8 +8,10 @@ import consts
 
 DATA_FILE = "data.json"
 CHAMPION_FILE = "champion.json"
+CRINGE_NAMES_FILE = "cringe_names.txt"
 SUMMONER_DATA = {}
 CHAMPION_ID_TO_NAME = {}
+CHAMPION_NAME_TO_CRINGE_NAME = {}
 
 def refreshSummonerData():
     SUMMONER_DATA.clear()
@@ -47,6 +49,7 @@ def saveSummonerData():
 
 def loadChampionData():
     CHAMPION_ID_TO_NAME.clear()
+    CHAMPION_NAME_TO_CRINGE_NAME.clear()
     try:
         with open(CHAMPION_FILE, "r", encoding="utf8") as input_file:
             json_data = input_file.read()
@@ -57,10 +60,25 @@ def loadChampionData():
                 CHAMPION_ID_TO_NAME[id] = name
     except FileNotFoundError:
         print("Could not find file", CHAMPION_FILE)
+    try:
+        with open(CRINGE_NAMES_FILE, "r", encoding="utf8") as input_file:
+            lines = input_file.readlines()
+            for line in lines:
+                names = line.split(" = ")
+                realName, cringeName = names[0], names[1]
+                if cringeName[-1] == '\n':
+                    cringeName = cringeName[:-1]
+                CHAMPION_NAME_TO_CRINGE_NAME[realName] = cringeName
+    except FileNotFoundError:
+        print("Could not find file", CRINGE_NAMES_FILE)
 
 def getChampionName(championId):
     if championId in CHAMPION_ID_TO_NAME:
-        return CHAMPION_ID_TO_NAME[championId]
+        championName = CHAMPION_ID_TO_NAME[championId]
+        if championName in CHAMPION_NAME_TO_CRINGE_NAME:
+            return CHAMPION_NAME_TO_CRINGE_NAME[championName]
+        else:
+            return championName
     else:
         return "UNKNOWN"
 

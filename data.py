@@ -7,7 +7,9 @@ import utils
 import consts
 
 DATA_FILE = "data.json"
+CHAMPION_FILE = "champion.json"
 SUMMONER_DATA = {}
+CHAMPION_ID_TO_NAME = {}
 
 def refreshSummonerData():
     SUMMONER_DATA.clear()
@@ -42,6 +44,25 @@ def loadSummonerData():
 def saveSummonerData():
     with open (DATA_FILE, "w") as output_file:
         output_file.write(json.dumps(SUMMONER_DATA, indent=4, default=utils.toJson))
+
+def loadChampionData():
+    CHAMPION_ID_TO_NAME.clear()
+    try:
+        with open(CHAMPION_FILE, "r", encoding="utf8") as input_file:
+            json_data = input_file.read()
+            parsed = json.loads(json_data)
+            data = parsed["data"]
+            for name in data:
+                id = int(data[name]["key"])
+                CHAMPION_ID_TO_NAME[id] = name
+    except FileNotFoundError:
+        print("Could not find file", CHAMPION_FILE)
+
+def getChampionName(championId):
+    if championId in CHAMPION_ID_TO_NAME:
+        return CHAMPION_ID_TO_NAME[championId]
+    else:
+        return "UNKNOWN"
 
 if __name__ == "__main__":
     refreshSummonerData()

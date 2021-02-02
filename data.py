@@ -41,6 +41,7 @@ def loadSummonerData():
                 SUMMONER_DATA[name] = Summoner.fromJson(parsed[name])
     except FileNotFoundError:
         print("Could not find file", DATA_FILE)
+        return None
     return SUMMONER_DATA
 
 def saveSummonerData():
@@ -59,7 +60,7 @@ def loadChampionData():
                 id = int(data[name]["key"])
                 CHAMPION_ID_TO_NAME[id] = name
     except FileNotFoundError:
-        print("Could not find file", CHAMPION_FILE)
+        print("Could not find file", CHAMPION_FILE, "so champ names will show as UNKNOWN")
     try:
         with open(CRINGE_NAMES_FILE, "r", encoding="utf8") as input_file:
             lines = input_file.readlines()
@@ -70,7 +71,7 @@ def loadChampionData():
                     cringeName = cringeName[:-1]
                 CHAMPION_NAME_TO_CRINGE_NAME[realName] = cringeName
     except FileNotFoundError:
-        print("Could not find file", CRINGE_NAMES_FILE)
+        print("Could not find file", CRINGE_NAMES_FILE, "so not using substituted names")
 
 def getChampionName(championId):
     if championId in CHAMPION_ID_TO_NAME:

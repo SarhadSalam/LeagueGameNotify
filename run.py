@@ -187,6 +187,9 @@ if __name__ == "__main__":
             printHelp()
             sys.exit()
     summonerData = data.loadSummonerData()
+    if summonerData is None:
+        print("No summoner data file found. Refreshing summoner data to generate data")
+        summonerData = data.refreshSummonerData()
     data.loadChampionData()
     FIVE_MINUTES = 5 * 60
     TWO_MINUTES = 2 * 60

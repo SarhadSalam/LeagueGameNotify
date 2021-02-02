@@ -61,7 +61,7 @@ def notifyGameEnd(summoner, gameId):
         kp = str((100 * (kills + assists)) // totalKills)
         win = stats["win"]
         result = "won" if win else "lost"
-        msg = "GAME END: " + summoner.SummonerDTO["name"] + " " + result + " a game as " + champion + " " + lane + ". They went " + str(kills) + "/" + str(deaths) + "/" + str(assists) + " with a kp of " + kp + "%."
+        msg = "GAME END: " + summoner.SummonerDTO["name"] + " " + result + " a game as " + champion + " " + lane + ". He went " + str(kills) + "/" + str(deaths) + "/" + str(assists) + " with a kp of " + kp + "%."
 
         # Rank Change
         if summoner.CurrentRank != None:
@@ -86,7 +86,7 @@ def notifyGameEnd(summoner, gameId):
                     else:
                         lpDiff = prevLp - newLp
                     result = "gained" if win else "lost"
-                    msg += "\n" + summoner.SummonerDTO["name"] + " " + result + " " + str(lpDiff) + "lp for this game"
+                    msg += "\n" + summoner.SummonerDTO["name"] + " " + result + " " + str(lpDiff) + "lp for this game. He is currently " + rank["tier"] + " " + rank["division"] + " " + rank["lp"] + "lp."
         color = utils.ColorCodes.GREEN if win else utils.ColorCodes.RED
         discord_bot.SendMessage(msg, color)
     else:

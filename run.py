@@ -135,7 +135,7 @@ def querySummonerCurrentRank(summoner):
         elif change == -2:
             # Demoted to new Tier
             discord_bot.SendMessage("DEMOTION: " + summoner.SummonerDTO["name"] + " has demoted to " + rank["tier"] + " " + rank["division"] + " :( :(\nCan we get an F in the chat", utils.ColorCodes.RED)
-        elif change == 3:
+        if change != 0:
             # Newly assigned rank
             requestDataSave()
 

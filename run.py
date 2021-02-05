@@ -61,7 +61,7 @@ def notifyGameEnd(summoner, gameId):
         kp = str((100 * (kills + assists)) // totalKills)
         win = stats["win"]
         result = "won" if win else "lost"
-        msg = "GAME END: " + summoner.SummonerDTO["name"] + " " + result + " a game as " + champion + " " + lane + ". He went " + str(kills) + "/" + str(deaths) + "/" + str(assists) + " with a kp of " + kp + "%."
+        msg = "GAME END: " + summoner.SummonerDTO["name"] + " " + result + " a game as " + champion + ". He went " + str(kills) + "/" + str(deaths) + "/" + str(assists) + " with a kp of " + kp + "%."
 
         # Rank Change
         if summoner.CurrentRank != None:
@@ -77,7 +77,7 @@ def notifyGameEnd(summoner, gameId):
                     rank["division"] = entry["rank"]
                     rank["lp"] = entry["leaguePoints"]
                     break
-                if rank["tier"] == summoner.CurrentRank["tier"] and rank["division"] == rank["division"]:
+                if rank["tier"] == summoner.CurrentRank["tier"] and rank["division"] == summoner.CurrentRank["division"]:
                     prevLp = int(summoner.CurrentRank["lp"])
                     newLp = int(rank["lp"])
                     lpDiff = 0
@@ -86,7 +86,7 @@ def notifyGameEnd(summoner, gameId):
                     else:
                         lpDiff = prevLp - newLp
                     result = "gained" if win else "lost"
-                    msg += "\n" + summoner.SummonerDTO["name"] + " " + result + " " + str(lpDiff) + "lp for this game. He is currently " + rank["tier"] + " " + rank["division"] + " " + rank["lp"] + "lp."
+                    msg += "\n" + summoner.SummonerDTO["name"] + " " + result + " " + str(lpDiff) + "lp for this game. He is currently " + str(rank["tier"]) + " " + str(rank["division"]) + " " + str(rank["lp"]) + "lp."
         color = utils.ColorCodes.GREEN if win else utils.ColorCodes.RED
         discord_bot.SendMessage(msg, color)
     else:
@@ -180,6 +180,7 @@ if __name__ == "__main__":
     if len(args) > 0:
         if args[0] in options[0]:
             # Run with Refresh
+            discord_bot.SendMessage("```Starting Up Bot With Refreshed Data```")
             data.refreshSummonerData()
         else:
             # Invalid args

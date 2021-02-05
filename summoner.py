@@ -8,24 +8,35 @@ class Summoner():
 
     def updateCurrentGame(self, newGameInfo):
         ret_status = {"notifyStart":False, "notifyEnd":None, "requestSave":False}
+
+        def isRankedGame(gameObj):
+             if "gameQueueConfigId" in gameObj:
+                 return gameObj["gameQueueConfigId"] == consts.RANKED_SOLO_QUEUE_ID
+             else:
+                 return False
+
         if newGameInfo is None:
-            if self.CurrentGameInfo != None and self.CurrentGameInfo["gameQueueConfigId"] == consts.RANKED_SOLO_QUEUE_ID:
+            if self.CurrentGameInfo != None and isRankedGame(self.CurrentGameInfo):
                 # Ranked Game End
                 ret_status["notifyEnd"] = self.CurrentGameInfo["gameId"]
+                ret_status["requestSave"] = True
             self.CurrentGameInfo = None
         elif self.CurrentGameInfo is None:
             self.CurrentGameInfo = newGameInfo
-            ret_status["notifyStart"] = self.CurrentGameInfo["gameQueueConfigId"] == consts.RANKED_SOLO_QUEUE_ID
+            ret_status["notifyStart"] = isRankedGame(self.CurrentGameInfo)
             ret_status["requestSave"] = True
         elif self.CurrentGameInfo["gameId"] != newGameInfo["gameId"]:
             # New Game Found
-            ret_status["notifyStart"] = newGameInfo["gameQueueConfigId"] == consts.RANKED_SOLO_QUEUE_ID
-            ret_status["notifyEnd"] = self.CurrentGameInfo["gameId"] if self.CurrentGameInfo["gameQueueConfigId"] == consts.RANKED_SOLO_QUEUE_ID else None
+            ret_status["notifyStart"] = isRankedGame(newGameInfo)
+            ret_status["notifyEnd"] = self.CurrentGameInfo["gameId"] if isRankedGame(self.CurrentGameInfo) else None
             ret_status["requestSave"] = True
             self.CurrentGameInfo = newGameInfo
         return ret_status
 
     def updateCurrentRank(self, newRank):
+        if not newRank:
+            return 0
+
         if self.CurrentRank is None:
             self.CurrentRank = newRank
             return 3
@@ -48,6 +59,8 @@ class Summoner():
 
         self.CurrentRank = newRank
         return change
+
+
 
     def toJson(self):
         return self.__dict__

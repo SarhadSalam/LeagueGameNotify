@@ -8,6 +8,7 @@ import discord_bot
 import utils
 from periodic import PeriodicExecutor
 from datetime import datetime
+import signal
 
 needsSave = False
 
@@ -167,7 +168,13 @@ def run(summonerData):
 
     if needsSave:
         saveSummonerData()
+
+    print("Query Complete.")
     # Repeat every 5 mins upto here
+
+def sysExit(signal, frame):
+    discord_bot.SendMessage("```Bot is going to sleep.```")
+    sys.exit(0)
 
 def printHelp():
     print("The following arguments are accepted:")
@@ -175,6 +182,7 @@ def printHelp():
     print()
 
 if __name__ == "__main__":
+    signal.signal(signal.SIGINT, sysExit)
     options = (["--refresh", "--r"])
     args = sys.argv[1:]
     if len(args) > 0:
@@ -195,4 +203,5 @@ if __name__ == "__main__":
     FIVE_MINUTES = 5 * 60
     TWO_MINUTES = 2 * 60
     run_thread = PeriodicExecutor(TWO_MINUTES, run, summonerData)
+    discord_bot.SendMessage("```Bot is now awake and ready to report games```")
     run_thread.run()

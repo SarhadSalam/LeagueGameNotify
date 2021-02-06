@@ -9,12 +9,15 @@ import utils
 from periodic import PeriodicExecutor
 from datetime import datetime
 import signal
+from multiprocessing import Process
 
 needsSave = False
+
 
 def requestDataSave():
     global needsSave
     needsSave = True
+
 
 def saveSummonerData():
     global needsSave
@@ -22,11 +25,14 @@ def saveSummonerData():
     print("Saving new summoner data")
     data.saveSummonerData()
 
+
 def notifyGameEnd(summoner, gameId):
     if gameId is None:
         return
-    url = api_calls.BASE_API_URL + api_calls.MATCH_API_URL.format(matchId=gameId)
-    response = requests.get(url, headers={consts.API_KEY_HEADER: settings.API_KEY})
+    url = api_calls.BASE_API_URL + \
+        api_calls.MATCH_API_URL.format(matchId=gameId)
+    response = requests.get(
+        url, headers={consts.API_KEY_HEADER: settings.API_KEY})
     if response.status_code == 200:
         json_data = response.json()
         participants = json_data["participants"]
@@ -42,7 +48,8 @@ def notifyGameEnd(summoner, gameId):
                 participantID = pid["participantId"]
                 break
         if participantID is None:
-            print("Could not find", summoner.SummonerDTO["name"], "in participant list")
+            print("Could not find",
+                  summoner.SummonerDTO["name"], "in participant list")
         for p in participants:
             if p["participantId"] == participantID:
                 participant = p
@@ -62,12 +69,16 @@ def notifyGameEnd(summoner, gameId):
         kp = str((100 * (kills + assists)) // totalKills)
         win = stats["win"]
         result = "won" if win else "lost"
-        msg = "GAME END: " + summoner.SummonerDTO["name"] + " " + result + " a game as " + champion + ". He went " + str(kills) + "/" + str(deaths) + "/" + str(assists) + " with a kp of " + kp + "%."
+        msg = "GAME END: " + summoner.SummonerDTO["name"] + " " + result + " a game as " + champion + ". He went " + str(
+            kills) + "/" + str(deaths) + "/" + str(assists) + " with a kp of " + kp + "%."
 
         # Rank Change
         if summoner.CurrentRank != None:
-            url = api_calls.BASE_API_URL + api_calls.LEAGUE_API_URL.format(encryptedSummonerId=summoner.SummonerDTO["id"])
-            response = requests.get(url, headers={consts.API_KEY_HEADER: settings.API_KEY})
+            url = api_calls.BASE_API_URL + \
+                api_calls.LEAGUE_API_URL.format(
+                    encryptedSummonerId=summoner.SummonerDTO["id"])
+            response = requests.get(
+                url, headers={consts.API_KEY_HEADER: settings.API_KEY})
             if response.status_code == 200:
                 leagueEntrySet = response.json()
                 rank = {}
@@ -87,11 +98,13 @@ def notifyGameEnd(summoner, gameId):
                     else:
                         lpDiff = prevLp - newLp
                     result = "gained" if win else "lost"
-                    msg += "\n" + summoner.SummonerDTO["name"] + " " + result + " " + str(lpDiff) + "lp for this game. He is currently " + str(rank["tier"]) + " " + str(rank["division"]) + " " + str(rank["lp"]) + "lp."
+                    msg += "\n" + summoner.SummonerDTO["name"] + " " + result + " " + str(lpDiff) + "lp for this game. He is currently " + str(
+                        rank["tier"]) + " " + str(rank["division"]) + " " + str(rank["lp"]) + "lp."
         color = utils.ColorCodes.GREEN if win else utils.ColorCodes.RED
         discord_bot.SendMessage(msg, color)
     else:
         print("Error Obtaining Game Info for match#", gameId)
+
 
 def notifyGameStart(summoner, gameInfo):
     participants = gameInfo["participants"]
@@ -103,16 +116,21 @@ def notifyGameStart(summoner, gameInfo):
             break
     if participant != None:
         champion = data.getChampionName(participant["championId"])
-        msg = "GAME START: " + summoner.SummonerDTO["name"] + " has started a ranked game as " + champion + "!"
+        msg = "GAME START: " + \
+            summoner.SummonerDTO["name"] + \
+            " has started a ranked game as " + champion + "!"
         discord_bot.SendMessage(msg, utils.ColorCodes.YELLOW)
     else:
-        print("Could not obtain participant for current game of " + summoner.SummonerDTO["name"])
+        print("Could not obtain participant for current game of " +
+              summoner.SummonerDTO["name"])
 
 
 def querySummonerCurrentRank(summoner):
     encryptedId = summoner.SummonerDTO["id"]
-    url = api_calls.BASE_API_URL + api_calls.LEAGUE_API_URL.format(encryptedSummonerId=encryptedId)
-    response = requests.get(url, headers={consts.API_KEY_HEADER: settings.API_KEY})
+    url = api_calls.BASE_API_URL + \
+        api_calls.LEAGUE_API_URL.format(encryptedSummonerId=encryptedId)
+    response = requests.get(
+        url, headers={consts.API_KEY_HEADER: settings.API_KEY})
     if response.status_code == 200:
         leagueEntrySet = response.json()
         rank = {}
@@ -126,24 +144,31 @@ def querySummonerCurrentRank(summoner):
         change = summoner.updateCurrentRank(rank)
         if change == 2:
             # Promoted to new Tier!
-            discord_bot.SendMessage("PROMOTION: " + summoner.SummonerDTO["name"] + " has promoted to " + rank["tier"] + " " + rank["division"] + " !!! <3", utils.ColorCodes.GREEN)
+            discord_bot.SendMessage("PROMOTION: " + summoner.SummonerDTO["name"] + " has promoted to " +
+                                    rank["tier"] + " " + rank["division"] + " !!! <3", utils.ColorCodes.GREEN)
         elif change == 1:
             # Promoted to new Division
-            discord_bot.SendMessage("PROMOTION: " + summoner.SummonerDTO["name"] + " has promoted to " + rank["tier"] + " " + rank["division"] + " <3", utils.ColorCodes.GREEN)
+            discord_bot.SendMessage(
+                "PROMOTION: " + summoner.SummonerDTO["name"] + " has promoted to " + rank["tier"] + " " + rank["division"] + " <3", utils.ColorCodes.GREEN)
         elif change == -1:
             # Demoted to new Division
-            discord_bot.SendMessage("DEMOTION: " + summoner.SummonerDTO["name"] + " has demoted to " + rank["tier"] + " " + rank["division"] + " :(", utils.ColorCodes.RED)
+            discord_bot.SendMessage(
+                "DEMOTION: " + summoner.SummonerDTO["name"] + " has demoted to " + rank["tier"] + " " + rank["division"] + " :(", utils.ColorCodes.RED)
         elif change == -2:
             # Demoted to new Tier
-            discord_bot.SendMessage("DEMOTION: " + summoner.SummonerDTO["name"] + " has demoted to " + rank["tier"] + " " + rank["division"] + " :( :(\nCan we get an F in the chat", utils.ColorCodes.RED)
+            discord_bot.SendMessage("DEMOTION: " + summoner.SummonerDTO["name"] + " has demoted to " + rank["tier"] +
+                                    " " + rank["division"] + " :( :(\nCan we get an F in the chat", utils.ColorCodes.RED)
         if change != 0:
             # Newly assigned rank
             requestDataSave()
 
+
 def querySummonerCurrentGame(summoner):
     encryptedId = summoner.SummonerDTO["id"]
-    url = api_calls.BASE_API_URL + api_calls.SPECTATOR_API_URL.format(encryptedSummonerId=encryptedId)
-    response = requests.get(url, headers={consts.API_KEY_HEADER: settings.API_KEY})
+    url = api_calls.BASE_API_URL + \
+        api_calls.SPECTATOR_API_URL.format(encryptedSummonerId=encryptedId)
+    response = requests.get(
+        url, headers={consts.API_KEY_HEADER: settings.API_KEY})
     if response.status_code == 200:
         # Current Game Found
         newGameInfo = response.json()
@@ -172,23 +197,32 @@ def run(summonerData):
     print("Query Complete.")
     # Repeat every 5 mins upto here
 
+
 def sysExit(signal, frame):
     discord_bot.SendMessage("```Bot is going to sleep.```")
+    bot_process.terminate()
     sys.exit(0)
+
 
 def printHelp():
     print("The following arguments are accepted:")
     print("  --refresh, --r: Refresh Summoner Data Before Running")
     print()
 
+
 if __name__ == "__main__":
     signal.signal(signal.SIGINT, sysExit)
     options = (["--refresh", "--r"])
     args = sys.argv[1:]
+
+    bot_process = Process(target=discord_bot.start_bot, args=())
+    bot_process.start()
+
     if len(args) > 0:
         if args[0] in options[0]:
             # Run with Refresh
-            discord_bot.SendMessage("```Starting Up Bot With Refreshed Data```")
+            discord_bot.SendMessage(
+                "```Starting Up Bot With Refreshed Data```")
             data.refreshSummonerData()
         else:
             # Invalid args

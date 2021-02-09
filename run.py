@@ -136,7 +136,14 @@ def notifyGameStart(summoner, gameInfo):
         msg = "GAME START: " + \
             summoner.SummonerDTO["name"] + \
             " has started a ranked game as " + champion + "!"
-        discord_bot.SendMessage(msg, utils.ColorCodes.YELLOW)
+        data.loadNotifyData()
+        notifyList = data.getNotifyList(summoner.SummonerDTO["name"])
+        postMsg = None
+        if notifyList and len(notifyList) > 0:
+            postMsg = "Notifying Simps:"
+            for user in notifyList:
+                postMsg += " " + discord_bot.mentionUser(user)
+        discord_bot.SendMessage(msg, utils.ColorCodes.YELLOW, postMsg)
     else:
         print("Could not obtain participant for current game of " +
               summoner.SummonerDTO["name"])
@@ -247,8 +254,9 @@ if __name__ == "__main__":
         print("No summoner data file found. Refreshing summoner data to generate data")
         summonerData = data.refreshSummonerData()
     data.loadChampionData()
+    data.loadNotifyData()
     FIVE_MINUTES = 5 * 60
     TWO_MINUTES = 2 * 60
     run_thread = PeriodicExecutor(TWO_MINUTES, run, summonerData)
     discord_bot.SendMessage("```Bot is now awake and ready to report games```")
-    run_thread.run()
+    #run_thread.run()

@@ -9,9 +9,12 @@ import consts
 DATA_FILE = "data.json"
 CHAMPION_FILE = "champion.json"
 CRINGE_NAMES_FILE = "cringe_names.txt"
+NOTIFY_DATA_FILE = "notifyMe.json"
+
 SUMMONER_DATA = {}
 CHAMPION_ID_TO_NAME = {}
 CHAMPION_NAME_TO_CRINGE_NAME = {}
+NOTIFY_DATA = {}
 
 def refreshSummonerData():
     SUMMONER_DATA.clear()
@@ -82,6 +85,75 @@ def getChampionName(championId):
             return championName
     else:
         return "UNKNOWN"
+
+def loadNotifyData():
+    global NOTIFY_DATA
+    NOTIFY_DATA.clear()
+    try:
+        with open(NOTIFY_DATA_FILE, "r") as input_file:
+            json_data = input_file.read()
+            NOTIFY_DATA = json.loads(json_data)
+    except FileNotFoundError:
+        print("Could not find file", NOTIFY_DATA_FILE)
+        return None
+    return NOTIFY_DATA
+
+def saveNotifyData():
+    with open (NOTIFY_DATA_FILE, "w") as output_file:
+        output_file.write(json.dumps(NOTIFY_DATA, indent=4, default=utils.toJson))
+
+def getNotifyList(summonerName):
+    if summonerName in NOTIFY_DATA:
+        return NOTIFY_DATA[summonerName]
+    else:
+        return None
+
+def addToNotifyList(summonerName, entry):
+    if summonerName is None:
+        return "Enter a summoner name"
+    if summonerName not in settings.SUMMONER_NAMES:
+        return summonerName + " is not one of the boiis"
+    if summonerName not in NOTIFY_DATA:
+        NOTIFY_DATA[summonerName] = []
+    if entry in NOTIFY_DATA[summonerName]:
+        return "You are already simping for " + summonerName
+    else:
+        NOTIFY_DATA[summonerName].append(entry)
+    saveNotifyData()
+    return True
+
+def removeFromNotifyList(summonerName, entry):
+    if summonerName is None:
+        return "Enter a summoner name"
+    elif summonerName not in settings.SUMMONER_NAMES:
+        return summonerName + " is not one of the boiis"
+    elif summonerName not in NOTIFY_DATA or entry not in NOTIFY_DATA[summonerName]:
+        return "You are not simping for " + summonerName + " >:("
+    else:
+        NOTIFY_DATA[summonerName].remove(entry)
+    saveNotifyData()
+    return True
+
+def getNotifyList(user):
+    summoners = []
+    for summoner in NOTIFY_DATA:
+        if user in NOTIFY_DATA[summoner]:
+            summoners.append(summoner)
+    return summoners
+
+def removeFromAllNotifyList(user):
+    for summoner in NOTIFY_DATA:
+        if user in NOTIFY_DATA[summoner]:
+            NOTIFY_DATA[summoner].remove(user)
+    saveNotifyData()
+
+def addToAllNotifyList(user):
+    for summoner in settings.SUMMONER_NAMES:
+        if summoner not in NOTIFY_DATA:
+            NOTIFY_DATA[summoner] = []
+        if user not in NOTIFY_DATA[summoner]:
+            NOTIFY_DATA[summoner].append(user)
+    saveNotifyData()
 
 if __name__ == "__main__":
     refreshSummonerData()

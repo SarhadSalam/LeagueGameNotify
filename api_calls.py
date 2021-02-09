@@ -13,6 +13,6 @@ def call_api(url):
     try:
         response = requests.get(url, headers={consts.API_KEY_HEADER: settings.API_KEY})
         return response
-    except ConnectionError:
+    except:
         print("Connection Error. Skipping Request")
         return None

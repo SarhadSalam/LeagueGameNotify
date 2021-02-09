@@ -18,8 +18,8 @@ def refreshSummonerData():
     print ("Refreshing Summoner Profile Data")
     for name in settings.SUMMONER_NAMES:
         url = api_calls.BASE_API_URL + api_calls.SUMMONER_API_URL.format(summonerName=name)
-        response = requests.get(url, headers={consts.API_KEY_HEADER: settings.API_KEY})
-        if response.status_code != 200:
+        response = api_calls.call_api(url)
+        if response is None or response.status_code != 200:
             print("Failed to obtain data for" + name)
             print("Response Code:", response.status_code)
             continue

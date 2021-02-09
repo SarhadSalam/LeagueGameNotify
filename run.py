@@ -9,6 +9,7 @@ import utils
 from periodic import PeriodicExecutor
 from datetime import datetime
 import signal
+from api_calls import call_api
 
 needsSave = False
 
@@ -26,8 +27,8 @@ def notifyGameEnd(summoner, gameId):
     if gameId is None:
         return
     url = api_calls.BASE_API_URL + api_calls.MATCH_API_URL.format(matchId=gameId)
-    response = requests.get(url, headers={consts.API_KEY_HEADER: settings.API_KEY})
-    if response.status_code == 200:
+    response = call_api(url)
+    if response and response.status_code == 200:
         json_data = response.json()
         participants = json_data["participants"]
         participantIDs = json_data["participantIdentities"]
@@ -36,10 +37,12 @@ def notifyGameEnd(summoner, gameId):
         lane = None
         totalKills = 0
         team = None
+        matchHistoryUri = None
         for pid in participantIDs:
             summonerId = pid["player"]["summonerId"]
             if summonerId == summoner.SummonerDTO["id"]:
                 participantID = pid["participantId"]
+                matchHistoryUri = pid["player"]["matchHistoryUri"]
                 break
         if participantID is None:
             print("Could not find", summoner.SummonerDTO["name"], "in participant list")
@@ -66,9 +69,10 @@ def notifyGameEnd(summoner, gameId):
 
         # Rank Change
         if summoner.CurrentRank != None:
+            promos = None
             url = api_calls.BASE_API_URL + api_calls.LEAGUE_API_URL.format(encryptedSummonerId=summoner.SummonerDTO["id"])
-            response = requests.get(url, headers={consts.API_KEY_HEADER: settings.API_KEY})
-            if response.status_code == 200:
+            response = call_api(url)
+            if response and response.status_code == 200:
                 leagueEntrySet = response.json()
                 rank = {}
                 for entry in leagueEntrySet:
@@ -77,6 +81,8 @@ def notifyGameEnd(summoner, gameId):
                     rank["tier"] = entry["tier"]
                     rank["division"] = entry["rank"]
                     rank["lp"] = entry["leaguePoints"]
+                    if "miniSeries" in entry:
+                        promos = entry["miniSeries"]
                     break
                 if rank["tier"] == summoner.CurrentRank["tier"] and rank["division"] == summoner.CurrentRank["division"]:
                     prevLp = int(summoner.CurrentRank["lp"])
@@ -87,9 +93,26 @@ def notifyGameEnd(summoner, gameId):
                     else:
                         lpDiff = prevLp - newLp
                     result = "gained" if win else "lost"
-                    msg += "\n" + summoner.SummonerDTO["name"] + " " + result + " " + str(lpDiff) + "lp for this game. He is currently " + str(rank["tier"]) + " " + str(rank["division"]) + " " + str(rank["lp"]) + "lp."
+                    if promos is None or lpDiff != 0:
+                        msg += "\n" + summoner.SummonerDTO["name"] + " " + result + " " + str(lpDiff) + "lp for this game. He is currently " + str(rank["tier"]) + " " + str(rank["division"]) + " " + str(rank["lp"]) + "lp."
+                    if promos is not None:
+                        wins = str(promos["wins"])
+                        losses = str(promos["losses"])
+                        nextRankIndex = consts.TIERS.index(summoner.CurrentRank["tier"]) + 1
+                        nextRank = consts.TIERS[nextRankIndex]
+                        msg += "\n" + summoner.SummonerDTO["name"] + " is currently " + wins + "-" + losses + " in promos to " + nextRank + "."
+
+        # Match History Uri:
+        postMsg = None
+        if matchHistoryUri is not None:
+            playerCode = matchHistoryUri.split("/")[-1]
+            uri = api_calls.MATCH_HISTORY_URI.format(gameId=gameId, playerCode=playerCode)
+            postMsg = "View Game Details Here: " + uri
+        else:
+            print("Error Obtaining Match Uri for match#", gameId)
+
         color = utils.ColorCodes.GREEN if win else utils.ColorCodes.RED
-        discord_bot.SendMessage(msg, color)
+        discord_bot.SendMessage(msg, color, postMsg)
     else:
         print("Error Obtaining Game Info for match#", gameId)
 
@@ -112,8 +135,8 @@ def notifyGameStart(summoner, gameInfo):
 def querySummonerCurrentRank(summoner):
     encryptedId = summoner.SummonerDTO["id"]
     url = api_calls.BASE_API_URL + api_calls.LEAGUE_API_URL.format(encryptedSummonerId=encryptedId)
-    response = requests.get(url, headers={consts.API_KEY_HEADER: settings.API_KEY})
-    if response.status_code == 200:
+    response = call_api(url)
+    if response and response.status_code == 200:
         leagueEntrySet = response.json()
         rank = {}
         for entry in leagueEntrySet:
@@ -143,8 +166,8 @@ def querySummonerCurrentRank(summoner):
 def querySummonerCurrentGame(summoner):
     encryptedId = summoner.SummonerDTO["id"]
     url = api_calls.BASE_API_URL + api_calls.SPECTATOR_API_URL.format(encryptedSummonerId=encryptedId)
-    response = requests.get(url, headers={consts.API_KEY_HEADER: settings.API_KEY})
-    if response.status_code == 200:
+    response = call_api(url)
+    if response and response.status_code == 200:
         # Current Game Found
         newGameInfo = response.json()
     else:

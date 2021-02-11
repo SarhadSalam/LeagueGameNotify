@@ -137,7 +137,7 @@ def notifyGameStart(summoner, gameInfo):
             summoner.SummonerDTO["name"] + \
             " has started a ranked game as " + champion + "!"
         data.loadNotifyData()
-        notifyList = data.getNotifyList(summoner.SummonerDTO["name"])
+        notifyList = data.getNotifyListForSummoner(summoner.SummonerDTO["name"])
         postMsg = None
         if notifyList and len(notifyList) > 0:
             postMsg = "Notifying Simps:"
@@ -162,6 +162,8 @@ def querySummonerCurrentRank(summoner):
             rank["tier"] = entry["tier"]
             rank["division"] = entry["rank"]
             rank["lp"] = entry["leaguePoints"]
+            if "miniSeries" in entry:
+                rank["miniSeries"] = entry["miniSeries"]
             break
         change = summoner.updateCurrentRank(rank)
         if change == 2:
@@ -203,7 +205,7 @@ def querySummonerCurrentGame(summoner):
 
 
 def run(summonerData):
-    # Need to run this loop every 5 mins
+    # Need to run this loop every x mins
     current_time = datetime.now().strftime("%d %b %Y - %H:%M:%S")
     print("Querying Data For Summoners =>", current_time)
     for summonerName in summonerData:
@@ -228,7 +230,6 @@ def printHelp():
     print("The following arguments are accepted:")
     print("  --refresh, --r: Refresh Summoner Data Before Running")
     print()
-
 
 if __name__ == "__main__":
     signal.signal(signal.SIGINT, sysExit)
@@ -259,4 +260,4 @@ if __name__ == "__main__":
     TWO_MINUTES = 2 * 60
     run_thread = PeriodicExecutor(TWO_MINUTES, run, summonerData)
     discord_bot.SendMessage("```Bot is now awake and ready to report games```")
-    #run_thread.run()
+    run_thread.run()

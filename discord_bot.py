@@ -5,20 +5,48 @@ import settings
 from utils import applyColorToMsg
 import data
 import stream
-import data
+import time
+from datetime import datetime
+from datetime import timedelta
+import api_calls
+import re
+
+COMMAND_TIMESTAMPS = {}
 
 # Webhook discord message bot
 def SendMessage(msg, color=None, postMsg=None):
     msgText = msg
     if postMsg is not None:
         msgText += "\n" + postMsg
-    print("Sending Message: ", msg)
+    print("Sending Message: ", msgText)
     if color != None:
         msg = applyColorToMsg(msg, color)
     if postMsg is not None:
         msg += "\n" + postMsg
     webhook = Webhook.from_url(settings.DISCORD_WEBHOOK, adapter=RequestsWebhookAdapter())
     webhook.send(msg)
+
+def mentionUser(mentionId):
+    return "<@!" + str(mentionId) + ">"
+
+def updateTimestamp(command, ctx, cooldown=None):
+    current_time = time.time()
+    if command not in COMMAND_TIMESTAMPS:
+        COMMAND_TIMESTAMPS[command] = (current_time, ctx)
+        return float('inf')
+    last_call = COMMAND_TIMESTAMPS[command][0]
+    if cooldown is None:
+        COMMAND_TIMESTAMPS[command] = (current_time, ctx)
+        return current_time - last_call
+    elif (current_time - last_call) > cooldown:
+        COMMAND_TIMESTAMPS[command] = (current_time, ctx)
+        return True
+    else:
+        return False
+
+def clearTimestamp(command):
+    if command in COMMAND_TIMESTAMPS:
+        del COMMAND_TIMESTAMPS[command]
 
 # League Assistant Bot
 def start_bot():
@@ -31,7 +59,18 @@ def start_bot():
     import stream
 
     stream_handler = stream.StreamHandler()
-    bot = commands.Bot(command_prefix='!')
+    bot = commands.Bot(command_prefix='$')
+
+    data.load()
+
+    async def handleSummonerNameInput(ctx, summonerName):
+        summonerName = summonerName.lower()
+        status = data.isKnownSummoner(summonerName)
+        if status is not True:
+            await ctx.send(status)
+            return None
+        else:
+            return data.getSummonerName(summonerName)
 
     @bot.command()
     async def test(ctx):
@@ -49,6 +88,109 @@ def start_bot():
     @bot.command()
     async def hello(ctx):
         await ctx.send('Hello')
+
+    @bot.command()
+    async def clash(ctx):
+        cooldown = 60
+        if updateTimestamp("clash", ctx, cooldown):
+            uri = api_calls.BASE_API_URL + api_calls.CLASH_API_URI
+            response = api_calls.call_api(uri)
+            if response and response.status_code == 200:
+                clash_data = response.json()
+                if len(clash_data) == 0:
+                    await ctx.send("There are no clash dates currently set :(")
+                    return
+                clash_data = sorted(clash_data, key = lambda i: i["schedule"][0]["registrationTime"])
+                msg = "Current Clash Dates:"
+                for clash in clash_data:
+                    ts = int(clash["schedule"][0]["registrationTime"]) // 1000
+                    date = (datetime.utcfromtimestamp(ts) - timedelta(hours=5)).strftime('%d %b %Y at %I:%M %p')
+                    name = clash["nameKey"].capitalize() + " Cup " + clash["nameKeySecondary"].capitalize().replace("_", " ")
+                    text = "\n  " + name + " => " + date
+                    if clash["schedule"][0]["cancelled"]:
+                        text += " (CANCELLED)"
+                    msg += text
+                print(msg)
+                await ctx.send(msg)
+            else:
+                clearTimestamp("clash")
+                await ctx.send("Error obtaining clash info. Please try again")
+        else:
+            await ctx.send("Please wait " + str(cooldown) + " seconds from last successful call to use this command again")
+
+    @bot.command()
+    async def mmr(ctx, summonerName=None):
+        if not (summonerName := await handleSummonerNameInput(ctx, summonerName)):
+            return
+        print("Summoner Name =", summonerName)
+        uri = api_calls.MMR_URI.format(summonerName=summonerName)
+        response = api_calls.call_api(uri)
+        if response and response.status_code == 200:
+            mmr_data = response.json()
+            msg = summonerName + "'s MMR:\n  Ranked: "
+            avg = mmr_data["ranked"]["avg"]
+            if not avg:
+                msg += "N/A."
+            else:
+                err = mmr_data["ranked"]["err"]
+                msg += str(avg) + " +/- " + str(err) + "."
+                try:
+                    summaryText = mmr_data["ranked"]["summary"]
+                    pattern = "(.+)\<b\>(.+)\<\/b\>.*\<\/span>(.*)"
+                    match = re.search(pattern, summaryText)
+                    brief = match.group(1) + match.group(2)
+                    details = match.group(3).replace("<b>", "").replace("</b>", "")
+                    text = "(" + brief + ". " + details + ")"
+                    msg += "\n    " + text
+                except:
+                    print("Error parsing summary")
+            msg += "\n  ARAM: "
+            avg = mmr_data["ARAM"]["avg"]
+            if not avg:
+                msg += "N/A."
+            else:
+                err = mmr_data["ARAM"]["err"]
+                msg += str(avg) + " +/- " + str(err) + "."
+            print(msg)
+            await ctx.send(msg)
+        else:
+            await ctx.send("Failed to obtain mmr data for " + summonerName + ".")
+
+    @bot.command()
+    async def summon(ctx):
+        cooldown = 5
+        isReady = updateTimestamp("summon", ctx, cooldown)
+        if isReady:
+            summoner = data.getRandomSummoner()
+            discordMentionId = data.getDiscordIdFromSummonerName(summoner)
+            if discordMentionId is None:
+                await ctx.send(summoner + ", you have been summoned to play a ranked game")
+            else:
+                await ctx.send(mentionUser(discordMentionId) + ", " + summoner + " has been summoned to play a ranked game")
+
+    @bot.command()
+    async def rank(ctx, summonerName=None):
+        if not (summonerName := await handleSummonerNameInput(ctx, summonerName)):
+            return
+        currentRank = data.getSummoner(summonerName).CurrentRank
+        if currentRank is None:
+            await ctx.send(summonerName + " is unranked.")
+            return
+        msg = summonerName + " is currently " + currentRank["tier"] + " " + currentRank["division"] + " " + str(currentRank["lp"]) + "lp."
+        if "miniSeries" in currentRank:
+            wins = str(currentRank["miniSeries"]["wins"])
+            loss = str(CurrentRank["miniSeries"]["losses"])
+            msg += "\nHe is " + wins + "-" + losses + " in promos."
+        await ctx.send(msg)
+        return
+
+    @bot.command()
+    async def lp(ctx, summonerName=None):
+        await rank(ctx, summonerName)
+
+    @bot.command()
+    async def elo(ctx, summonerName=None):
+        await rank(ctx, summonerName)
 
     @bot.command()
     async def notify(ctx, action=None, summonerName=None):
@@ -88,6 +230,8 @@ def start_bot():
                 data.addToAllNotifyList(mentionId)
                 await ctx.send("Added " + mentionUser(mentionId) + " to all notify lists.")
                 return
+            elif not (summonerName := await handleSummonerNameInput(ctx, summonerName)):
+                return
             status = data.addToNotifyList(summonerName, mentionId)
             if status is True:
                 await ctx.send(mentionUser(mentionId) + " has been added to the notify list for " + summonerName)
@@ -99,6 +243,8 @@ def start_bot():
             if summonerName == "/all":
                 data.removeFromAllNotifyList(mentionId)
                 await ctx.send("Removed " + mentionUser(mentionId) + " from all notify lists.")
+                return
+            elif not (summonerName := await handleSummonerNameInput(ctx, summonerName)):
                 return
             status = data.removeFromNotifyList(summonerName, mentionId)
             if status is True:
@@ -114,6 +260,9 @@ def start_bot():
     async def stream(ctx, state=None, summoner_name=None):
         await ctx.send("Sorry, stream capability has not been setup yet. You can blame Naveed for being lazy.")
         return
+
+        if not (summonerName := await handleSummonerNameInput(ctx, summonerName)):
+            return
 
         if not state:
             await ctx.send("Need both state and summoner name")
@@ -152,7 +301,7 @@ def start_bot():
                 return
 
             data.loadSummonerData()
-            game_info = data.SUMMONER_DATA[summoner_name].CurrentGameInfo
+            game_info = data.getSummoner(summoner_name).CurrentGameInfo
 
             if not game_info:
                 await ctx.send(f"{summoner_name} is not in game you cuck")
@@ -171,7 +320,7 @@ def start_bot():
                 return
 
             data.loadSummonerData()
-            game_info = data.SUMMONER_DATA[summoner_name].CurrentGameInfo
+            game_info = data.getSummoner(summoner_name).CurrentGameInfo
 
             if not game_info:
                 await ctx.send(f"{summoner_name} is not in game you cuck")
@@ -183,9 +332,6 @@ def start_bot():
             await ctx.send(f"Changing stream to {summoner_name}")
             stream_handler.changeStream(game_id, summoner_id)
             await ctx.send(f"Successfully started at https://twitch.com/dilf3")
-
-    def mentionUser(mentionId):
-        return "<@!" + str(mentionId) + ">"
 
     bot.run(settings.DISCORD_APP_TOKEN)
     print("Discord Bot Started!")

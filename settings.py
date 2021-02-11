@@ -6,6 +6,7 @@ load_dotenv()
 
 API_KEY = os.getenv("API_KEY")
 SUMMONER_NAMES = json.loads(os.getenv("SUMMONER_NAMES"))
+DISCORD_IDS = json.loads(os.getenv("DISCORD_IDS"))
 DEV_KEY = os.getenv("API_KEY_DEV")
 DISCORD_WEBHOOK = os.getenv("DISCORD_WEBHOOK")
 LEAGUE_PATH = os.getenv("LEAGUE_PATH")

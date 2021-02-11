@@ -5,6 +5,7 @@ from summoner import Summoner
 import json
 import utils
 import consts
+import random
 
 DATA_FILE = "data.json"
 CHAMPION_FILE = "champion.json"
@@ -26,8 +27,8 @@ def refreshSummonerData():
             print("Failed to obtain data for" + name)
             print("Response Code:", response.status_code)
             continue
-        SUMMONER_DATA[name] = Summoner()
-        SUMMONER_DATA[name].SummonerDTO = response.json()
+        SUMMONER_DATA[name.lower()] = Summoner()
+        SUMMONER_DATA[name.lower()].SummonerDTO = response.json()
     print ("Completed Refreshing Summoner Profile Data")
 
     saveSummonerData()
@@ -41,7 +42,7 @@ def loadSummonerData():
             json_data = input_file.read()
             parsed = json.loads(json_data)
             for name in parsed:
-                SUMMONER_DATA[name] = Summoner.fromJson(parsed[name])
+                SUMMONER_DATA[name.lower()] = Summoner.fromJson(parsed[name])
     except FileNotFoundError:
         print("Could not find file", DATA_FILE)
         return None
@@ -50,6 +51,25 @@ def loadSummonerData():
 def saveSummonerData():
     with open (DATA_FILE, "w") as output_file:
         output_file.write(json.dumps(SUMMONER_DATA, indent=4, default=utils.toJson))
+
+def isKnownSummoner(summonerName):
+    if summonerName is None:
+        return "No Summoner Name Found"
+    if summonerName.lower() not in SUMMONER_DATA:
+        return summonerName + " is not one of the boiis"
+    return True
+
+def getSummonerName(summonerName):
+    name = summonerName.lower()
+    if name in SUMMONER_DATA:
+        return SUMMONER_DATA[name].SummonerDTO["name"]
+    return None
+
+def getSummoner(summonerName):
+    name = summonerName.lower()
+    if name in SUMMONER_DATA:
+        return SUMMONER_DATA[name]
+    return None
 
 def loadChampionData():
     CHAMPION_ID_TO_NAME.clear()
@@ -102,17 +122,15 @@ def saveNotifyData():
     with open (NOTIFY_DATA_FILE, "w") as output_file:
         output_file.write(json.dumps(NOTIFY_DATA, indent=4, default=utils.toJson))
 
-def getNotifyList(summonerName):
+def getNotifyListForSummoner(summonerName):
     if summonerName in NOTIFY_DATA:
         return NOTIFY_DATA[summonerName]
     else:
         return None
 
 def addToNotifyList(summonerName, entry):
-    if summonerName is None:
-        return "Enter a summoner name"
-    if summonerName not in settings.SUMMONER_NAMES:
-        return summonerName + " is not one of the boiis"
+    if (msg := isKnownSummoner(summonerName)) is not True:
+        return msg
     if summonerName not in NOTIFY_DATA:
         NOTIFY_DATA[summonerName] = []
     if entry in NOTIFY_DATA[summonerName]:
@@ -123,10 +141,8 @@ def addToNotifyList(summonerName, entry):
     return True
 
 def removeFromNotifyList(summonerName, entry):
-    if summonerName is None:
-        return "Enter a summoner name"
-    elif summonerName not in settings.SUMMONER_NAMES:
-        return summonerName + " is not one of the boiis"
+    if (msg := isKnownSummoner(summonerName)) is not True:
+        return msg
     elif summonerName not in NOTIFY_DATA or entry not in NOTIFY_DATA[summonerName]:
         return "You are not simping for " + summonerName + " >:("
     else:
@@ -154,6 +170,19 @@ def addToAllNotifyList(user):
         if user not in NOTIFY_DATA[summoner]:
             NOTIFY_DATA[summoner].append(user)
     saveNotifyData()
+
+def getRandomSummoner():
+    return random.choice(settings.SUMMONER_NAMES)
+
+def getDiscordIdFromSummonerName(summonerName):
+    if summonerName in settings.DISCORD_IDS:
+        return settings.DISCORD_IDS[summonerName]
+    return None
+
+def load():
+    loadSummonerData()
+    loadChampionData()
+    loadNotifyData()
 
 if __name__ == "__main__":
     refreshSummonerData()

@@ -172,6 +172,7 @@ def start_bot():
     async def rank(ctx, summonerName=None):
         if not (summonerName := await handleSummonerNameInput(ctx, summonerName)):
             return
+        data.loadSummonerData()
         currentRank = data.getSummoner(summonerName).CurrentRank
         if currentRank is None:
             await ctx.send(summonerName + " is unranked.")

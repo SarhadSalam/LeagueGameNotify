@@ -119,13 +119,13 @@ def start_bot():
             await ctx.send("Please wait " + str(cooldown) + " seconds from last successful call to use this command again")
 
     @bot.command()
-    async def mmr(ctx, summonerName=None):
+    async def mmr(ctx, summonerName=None, option=None):
         if not (summonerName := await handleSummonerNameInput(ctx, summonerName)):
             return
-        print("Summoner Name =", summonerName)
         uri = api_calls.MMR_URI.format(summonerName=summonerName)
         response = api_calls.call_api(uri)
         if response and response.status_code == 200:
+            history = option is not None and option.lower() == "-history"
             mmr_data = response.json()
             msg = summonerName + "'s MMR:\n  Ranked: "
             avg = mmr_data["ranked"]["avg"]
@@ -133,7 +133,9 @@ def start_bot():
                 msg += "N/A."
             else:
                 err = mmr_data["ranked"]["err"]
-                msg += str(avg) + " +/- " + str(err) + "."
+                ts = int(mmr_data["ranked"]["timestamp"])
+                date = (datetime.utcfromtimestamp(ts) - timedelta(hours=5)).strftime('%d %b %Y at %I:%M %p')
+                msg += str(avg) + " +/- " + str(err) + " (Last Updated " + date + ")"
                 try:
                     summaryText = mmr_data["ranked"]["summary"]
                     pattern = "(.+)\<b\>(.+)\<\/b\>.*\<\/span>(.*)"
@@ -144,14 +146,36 @@ def start_bot():
                     msg += "\n    " + text
                 except:
                     print("Error parsing summary")
-            msg += "\n  ARAM: "
+                if history:
+                    msg += "\n    History: "
+                    timeline = mmr_data["ranked"]["historical"]
+                    if len(timeline) == 0:
+                        msg += "Not Enough Solo Games For History"
+                    else:
+                        for entry in timeline:
+                            val = entry["avg"]
+                            if val:
+                                msg += str(val) + " -> "
+                        msg += str(avg)
+            msg += "\n  Gayram: "
             avg = mmr_data["ARAM"]["avg"]
             if not avg:
                 msg += "N/A."
             else:
                 err = mmr_data["ARAM"]["err"]
-                msg += str(avg) + " +/- " + str(err) + "."
-            print(msg)
+                date = (datetime.utcfromtimestamp(ts) - timedelta(hours=5)).strftime('%d %b %Y at %I:%M %p')
+                msg += str(avg) + " +/- " + str(err) + " (Last Updated " + date + ")"
+                if history:
+                    msg += "\n    History: "
+                    timeline = mmr_data["ARAM"]["historical"]
+                    if len(timeline) == 0:
+                        msg += "Not Enough Solo Games For History"
+                    else:
+                        for entry in timeline:
+                            val = entry["avg"]
+                            if val:
+                                msg += str(val) + " -> "
+                        msg += str(avg)
             await ctx.send(msg)
         else:
             await ctx.send("Failed to obtain mmr data for " + summonerName + ".")

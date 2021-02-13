@@ -358,5 +358,10 @@ def start_bot():
             stream_handler.changeStream(game_id, summoner_id)
             await ctx.send(f"Successfully started at https://twitch.com/dilf3")
 
+    # @bot.command()
+    # async def fivesum(ctx):
+
+
+
     bot.run(settings.DISCORD_APP_TOKEN)
     print("Discord Bot Started!")

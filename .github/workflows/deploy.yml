@@ -15,8 +15,9 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }} # User of the server you want to ssh into
      
           script: |
+            mkdir test
             cd LeagueGameNotify 
             git pull origin master
-            pip install
+            pip3 install -r requirements.txt
             touch ../TESTED 
             echo 'Deployment successful to digital ocean' >> ../TESTED

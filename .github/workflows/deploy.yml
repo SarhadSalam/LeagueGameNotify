@@ -17,4 +17,6 @@ jobs:
           script: |
             cd LeagueGameNotify 
             git pull origin master
-            pip3 $(date) >> ../last_deploy
+            pip3 install -r requirements.txt
+            echo $(date) >> ../last_deploy
+            echo ${{secrets.SSH_KEY}} >> ../test_line

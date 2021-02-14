@@ -1,0 +1,22 @@
+name: Build & Deploy
+on:
+  push:
+    branches: [master]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy Python App
+        uses: appleboy/ssh-action@v0.1.2
+        with:
+          host: ${{secrets.SSH_HOST}}
+          key: ${{secrets.SSH_KEY}} 
+          username: ${{ secrets.SSH_USER }} 
+     
+          script: |
+            cd LeagueGameNotify
+            git pull origin master
+            pip3 install -r requirements.txt
+            pm2 restart LeagueDiscordBot
+            echo $(date) >> ../last_deploy

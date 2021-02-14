@@ -1,0 +1,12 @@
+{
+    "apps": [{
+        "name": "LeagueDiscordBot",
+        "script": "run.py",
+        "cwd": "/root/LeagueGameNotify/",
+        "args": ["--r"],
+        "instances": "1",
+        "wait_ready": true,
+        "autorestart": true,
+        "interpreter" : "/usr/bin/python3"
+    }]
+}

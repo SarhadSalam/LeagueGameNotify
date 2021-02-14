@@ -2,4 +2,6 @@
 *.json
 __pycache__/*
 *.txt
+!requirements.txt
+!ecosystem.config.json
 *test*

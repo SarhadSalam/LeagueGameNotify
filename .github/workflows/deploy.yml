@@ -15,7 +15,8 @@ jobs:
           username: ${{ secrets.SSH_USER }} 
      
           script: |
-            cd LeagueGameNotify 
+            cd LeagueGameNotify
             git pull origin master
             pip3 install -r requirements.txt
+            pm2 restart LeagueDiscordBot
             echo $(date) >> ../last_deploy

@@ -358,10 +358,14 @@ def start_bot():
             stream_handler.changeStream(game_id, summoner_id)
             await ctx.send(f"Successfully started at https://twitch.com/dilf3")
 
-    # @bot.command()
-    # async def fivesum(ctx):
-
-
+    @bot.command()
+    async def flex(ctx):
+        msg = "Come for 5sum "
+        for (k, v) settings.DISCORD_IDS.items():
+            if k != "RedHat1":
+                msg += f"{mentionUser(v)} "
+        
+        await ctx.send(msg)
 
     bot.run(settings.DISCORD_APP_TOKEN)
     print("Discord Bot Started!")

@@ -10,6 +10,7 @@ from datetime import datetime
 from datetime import timedelta
 import api_calls
 import re
+import os
 
 COMMAND_TIMESTAMPS = {}
 
@@ -56,6 +57,7 @@ def start_bot():
     import settings
     from utils import applyColorToMsg
     import data
+    import os
     import stream
 
     stream_handler = stream.StreamHandler()
@@ -366,6 +368,22 @@ def start_bot():
                 msg += f"{mentionUser(v)} "
         
         await ctx.send(msg)
+    
+    def is_admin():
+        def predicate(ctx):
+            return ctx.message.author.id == settings.DISCORD_IDS["sardaddy"] or ctx.message.author.id == settings.DISCORD_IDS["Nashweed"]
+        
+        return commands.check(predicate)
+
+    @bot.command()
+    @is_admin()
+    async def start(ctx):
+        os.system("pm2 restart LeagueDiscordBot")
+
+    @bot.command()
+    @is_admin()
+    async def stop(ctx):
+        os.system("pm2 stop LeagueDiscordBot")
 
     bot.run(settings.DISCORD_APP_TOKEN)
     print("Discord Bot Started!")

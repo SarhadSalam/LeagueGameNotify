@@ -1,0 +1,18 @@
+name: Restart Application
+on:
+  workflow_dispatch:
+    inputs:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy Python App
+        uses: appleboy/ssh-action@v0.1.2
+        with:
+          host: ${{secrets.SSH_HOST}}
+          key: ${{secrets.SSH_KEY}} 
+          username: ${{ secrets.SSH_USER }} 
+     
+          script: |
+            pm2 restart LeagueDiscordBot

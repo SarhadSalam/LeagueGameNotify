@@ -361,7 +361,7 @@ def start_bot():
     @bot.command()
     async def flex(ctx):
         msg = "Come for 5sum "
-        for (k, v) settings.DISCORD_IDS.items():
+        for (k, v) in settings.DISCORD_IDS.items():
             if k != "RedHat1":
                 msg += f"{mentionUser(v)} "
         

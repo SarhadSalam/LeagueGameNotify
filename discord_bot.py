@@ -165,6 +165,7 @@ def start_bot():
                 msg += "N/A."
             else:
                 err = mmr_data["ARAM"]["err"]
+                ts = int(mmr_data["ARAM"]["timestamp"])
                 date = (datetime.utcfromtimestamp(ts) - timedelta(hours=5)).strftime('%d %b %Y at %I:%M %p')
                 msg += str(avg) + " +/- " + str(err) + " (Last Updated " + date + ")"
                 if history:

@@ -67,7 +67,10 @@ def notifyGameEnd(summoner, gameId):
         kills = int(stats["kills"])
         deaths = int(stats["deaths"])
         assists = int(stats["assists"])
-        kp = str((100 * (kills + assists)) // totalKills)
+        if totalKills > 0:
+            kp = str((100 * (kills + assists)) // totalKills)
+        else:
+            kp = "0"
         win = stats["win"]
         result = "won" if win else "lost"
         msg = "GAME END: " + summoner.SummonerDTO["name"] + " " + result + " a game as " + champion + ". He went " + str(

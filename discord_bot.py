@@ -154,6 +154,7 @@ def start_bot():
                     if len(timeline) == 0:
                         msg += "Not Enough Solo Games For History"
                     else:
+                        timeline.reverse()
                         for entry in timeline:
                             val = entry["avg"]
                             if val:
@@ -174,6 +175,7 @@ def start_bot():
                     if len(timeline) == 0:
                         msg += "Not Enough Solo Games For History"
                     else:
+                        timeline.reverse()
                         for entry in timeline:
                             val = entry["avg"]
                             if val:
@@ -367,7 +369,7 @@ def start_bot():
         for (k, v) in settings.DISCORD_IDS.items():
             if k != "RedHat1":
                 msg += f"{mentionUser(v)} "
-        
+
         await ctx.send(msg)
     
     def is_admin():

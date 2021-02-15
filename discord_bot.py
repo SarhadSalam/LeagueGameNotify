@@ -364,7 +364,9 @@ def start_bot():
     @bot.command()
     async def flex(ctx, action='tag', summoner1=None, summoner2=None, summoner3=None, summoner4=None, summoner5=None):
         def generateTag(ids):
-            msg = f"Come for 5sum. We need {5 - len(flex_queue)} people. "
+            need_people = 5 - len(flex_queue)
+            plural_person = "people" if need_people > 1 else "person"
+            msg = f"Come for 5sum. We need {need_people} more {plural_person}. "
             for (k, v) in ids.items():
                 if k != "RedHat1":
                     msg += f"{mentionUser(v)} "
@@ -382,7 +384,11 @@ def start_bot():
                 for (k, v) in settings.DISCORD_IDS.items():
                     if k not in flex_queue:
                         tags[k] = v
-                msg = f"""People in lobby: {flex_queue}\n{generateTag(tags)}"""
+                
+                if len(flex_queue) < 5:
+                    msg = f"""People in lobby: {flex_queue}\n{generateTag(tags)}"""
+                else:
+                    msg = f"""People in lobby: {flex_queue}\n Not tagging anyone new, as lobby is full."""
 
             await ctx.send(msg)
             return
@@ -519,6 +525,10 @@ def start_bot():
     @is_admin()
     async def stop(ctx):
         os.system("pm2 stop LeagueDiscordBot")
+    
+    @bot.event
+    async def on_ready():
+        await bot.change_presence(activity=discord.Game(name="with Lucky's Mom"))
 
     SendMessage(msg = "```$help to get help on using different commands```")
     bot.run(settings.DISCORD_APP_TOKEN)

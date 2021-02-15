@@ -62,6 +62,7 @@ def start_bot():
 
     stream_handler = stream.StreamHandler()
     bot = commands.Bot(command_prefix='$')
+    flex_queue = []
 
     data.load()
 
@@ -364,14 +365,82 @@ def start_bot():
             await ctx.send(f"Successfully started at https://twitch.com/dilf3")
 
     @bot.command()
-    async def flex(ctx):
-        msg = "Come for 5sum "
-        for (k, v) in settings.DISCORD_IDS.items():
-            if k != "RedHat1":
-                msg += f"{mentionUser(v)} "
+    async def flex(ctx, action = 'tag', summoner1 = None, summoner2 = None, summoner3 = None, summoner4 = None, summoner5 = None):
+        def generateTag(ids):
+            msg = f"Come for 5sum. We need {5 - len(flex_queue)} people. "
+            for (k, v) in ids.items():
+                if k != "RedHat1":
+                    msg += f"{mentionUser(v)} "
+            return msg
+        
+        if action == 'help':
+            doc_string = """
+               Available Commands:
+               - $flex tag => Tag everyone not in the lobby
+               - $flex tag all => Ignore lobby members and tag everyone
+               - $flex clear => Clear out the lobby
+               - $flex add $SUMMONER_NAME1 $SUMMONER_NAME2? $SUMMONER_NAME3? $SUMMONER_NAME4? $SUMMONER_NAME5? => Add summoner's to the lobby list. Note only 1 summoner is required.
+               - $flex remove $SUMMONER_NAME1 $SUMMONER_NAME2? $SUMMONER_NAME3? $SUMMONER_NAME4? $SUMMONER_NAME5? => Remove summoner's from the lobby. Note only 1 summoner is required.
+               - $flex list => Shows who is in the lobby
+               - $flex help => Shows this help text
 
-        await ctx.send(msg)
-    
+               ? shows optional parameters.
+            """
+            await ctx.send(doc_string)
+            return
+
+        if action == 'list':
+            await ctx.send(f"People in lobby ({len(flex_queue)}): {flex_queue}")
+            return
+
+        if action == 'tag': #tag all
+            if summoner1 == 'all':
+                msg = generateTag(settings.DISCORD_IDS)
+            else:
+                tags = {}
+                for (k,v) in settings.DISCORD_IDS.items():
+                    if k not in flex_queue:
+                        tags[k] = v
+                msg = f"""People in lobby: {flex_queue}\n{generateTag(tags)}"""
+
+            await ctx.send(msg)
+            return
+        
+        if action == 'clear':
+            flex_queue.clear()
+            await ctx.send("Cleared queue!")
+            return
+
+        if not summoner1:
+           await ctx.send("Need a summoner name!")
+           return
+
+        summoners = [summoner1, summoner2, summoner3, summoner4, summoner5]
+
+        for summoner in summoners:
+            if not summoner:
+                continue
+
+            if summoner not in settings.SUMMONER_NAMES:
+                await ctx.send(f"{summoner} is not one of the bois.")
+                return
+
+            if action == 'add':
+                if len(flex_queue) >= 5:
+                    await ctx.send(f"Flex lobby is full, please clear lobby first.")
+                    return
+                if summoner not in flex_queue:
+                    flex_queue.append(summoner)
+                    await ctx.send(f"Added {summoner} to lobby.")
+                else:
+                    await ctx.send(f"{summoner} is already in lobby. Not added to lobby.")
+            elif action == 'remove':
+                if summoner not in flex_queue:
+                    await ctx.send(f"{summoner} is not in the lobby. Can't remove")
+                else:
+                    flex_queue.remove(summoner)
+                    await ctx.send(f"Removed {summoner} from lobby.")
+
     def is_admin():
         def predicate(ctx):
             return ctx.message.author.id == settings.DISCORD_IDS["sardaddy"] or ctx.message.author.id == settings.DISCORD_IDS["Nashweed"]

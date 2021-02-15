@@ -52,7 +52,7 @@ class StreamHandler:
         print("Started sharing screen")
         self._generateScriptFile(userId, gameId)
         self._runGeneratedScript()
-        pls.stream_screen(ini_file="C:\\Users\\sarha\\AppData\\Roaming\\Python\\Python37\\site-packages\\pylivestream\\pylivestream.ini",
+        pls.stream_screen(ini_file="pylivestream.ini",
                           websites=["twitch"], assume_yes=True)
 
     def _killLeagueClient(self):

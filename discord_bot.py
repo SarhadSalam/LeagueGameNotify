@@ -15,6 +15,8 @@ import os
 COMMAND_TIMESTAMPS = {}
 
 # Webhook discord message bot
+
+
 def SendMessage(msg, color=None, postMsg=None):
     msgText = msg
     if postMsg is not None:
@@ -24,11 +26,14 @@ def SendMessage(msg, color=None, postMsg=None):
         msg = applyColorToMsg(msg, color)
     if postMsg is not None:
         msg += "\n" + postMsg
-    webhook = Webhook.from_url(settings.DISCORD_WEBHOOK, adapter=RequestsWebhookAdapter())
+    webhook = Webhook.from_url(
+        settings.DISCORD_WEBHOOK, adapter=RequestsWebhookAdapter())
     webhook.send(msg)
+
 
 def mentionUser(mentionId):
     return "<@!" + str(mentionId) + ">"
+
 
 def updateTimestamp(command, ctx, cooldown=None):
     current_time = time.time()
@@ -45,11 +50,14 @@ def updateTimestamp(command, ctx, cooldown=None):
     else:
         return False
 
+
 def clearTimestamp(command):
     if command in COMMAND_TIMESTAMPS:
         del COMMAND_TIMESTAMPS[command]
 
 # League Assistant Bot
+
+
 def start_bot():
     import discord
     from discord import Webhook, RequestsWebhookAdapter
@@ -61,7 +69,7 @@ def start_bot():
     import stream
 
     stream_handler = stream.StreamHandler()
-    bot = commands.Bot(command_prefix='$')
+    bot = commands.Bot(command_prefix='$', help_command = None)
     flex_queue = []
 
     data.load()
@@ -103,12 +111,15 @@ def start_bot():
                 if len(clash_data) == 0:
                     await ctx.send("There are no clash dates currently set :(")
                     return
-                clash_data = sorted(clash_data, key = lambda i: i["schedule"][0]["registrationTime"])
+                clash_data = sorted(
+                    clash_data, key=lambda i: i["schedule"][0]["registrationTime"])
                 msg = "Current Clash Dates:"
                 for clash in clash_data:
                     ts = int(clash["schedule"][0]["registrationTime"]) // 1000
-                    date = (datetime.utcfromtimestamp(ts) - timedelta(hours=5)).strftime('%d %b %Y at %I:%M %p')
-                    name = clash["nameKey"].capitalize() + " Cup " + clash["nameKeySecondary"].capitalize().replace("_", " ")
+                    date = (datetime.utcfromtimestamp(ts) -
+                            timedelta(hours=5)).strftime('%d %b %Y at %I:%M %p')
+                    name = clash["nameKey"].capitalize(
+                    ) + " Cup " + clash["nameKeySecondary"].capitalize().replace("_", " ")
                     text = "\n  " + name + " => " + date
                     if clash["schedule"][0]["cancelled"]:
                         text += " (CANCELLED)"
@@ -137,14 +148,17 @@ def start_bot():
             else:
                 err = mmr_data["ranked"]["err"]
                 ts = int(mmr_data["ranked"]["timestamp"])
-                date = (datetime.utcfromtimestamp(ts) - timedelta(hours=5)).strftime('%d %b %Y at %I:%M %p')
-                msg += str(avg) + " +/- " + str(err) + " (Last Updated " + date + ")"
+                date = (datetime.utcfromtimestamp(ts) -
+                        timedelta(hours=5)).strftime('%d %b %Y at %I:%M %p')
+                msg += str(avg) + " +/- " + str(err) + \
+                " (Last Updated " + date + ")"
                 try:
                     summaryText = mmr_data["ranked"]["summary"]
                     pattern = "(.+)\<b\>(.+)\<\/b\>.*\<\/span>(.*)"
                     match = re.search(pattern, summaryText)
                     brief = match.group(1) + match.group(2)
-                    details = match.group(3).replace("<b>", "").replace("</b>", "")
+                    details = match.group(3).replace(
+                        "<b>", "").replace("</b>", "")
                     text = "(" + brief + ". " + details + ")"
                     msg += "\n    " + text
                 except:
@@ -168,8 +182,10 @@ def start_bot():
             else:
                 err = mmr_data["ARAM"]["err"]
                 ts = int(mmr_data["ARAM"]["timestamp"])
-                date = (datetime.utcfromtimestamp(ts) - timedelta(hours=5)).strftime('%d %b %Y at %I:%M %p')
-                msg += str(avg) + " +/- " + str(err) + " (Last Updated " + date + ")"
+                date = (datetime.utcfromtimestamp(ts) -
+                        timedelta(hours=5)).strftime('%d %b %Y at %I:%M %p')
+                msg += str(avg) + " +/- " + str(err) + \
+                " (Last Updated " + date + ")"
                 if history:
                     msg += "\n    History: "
                     timeline = mmr_data["ARAM"]["historical"]
@@ -207,7 +223,9 @@ def start_bot():
         if currentRank is None:
             await ctx.send(summonerName + " is unranked.")
             return
-        msg = summonerName + " is currently " + currentRank["tier"] + " " + currentRank["division"] + " " + str(currentRank["lp"]) + "lp."
+        msg = summonerName + " is currently " + \
+            currentRank["tier"] + " " + currentRank["division"] + \
+                " " + str(currentRank["lp"]) + "lp."
         if "miniSeries" in currentRank:
             wins = str(currentRank["miniSeries"]["wins"])
             loss = str(CurrentRank["miniSeries"]["losses"])
@@ -229,30 +247,19 @@ def start_bot():
             await ctx.send("Need an action and summoner name")
             return
 
-        if action == "help":
-            doc_string = """
-                Available Commands:
-                - !notify add $SUMMONER_NAME  =>  Subscribe to summoner's notify list
-                - !notify remove $SUMMONER_NAME  =>  Unsubscribe from summoner's notify list
-                - !notify list  =>  List your current subscriptions
-                - !notify help  =>  Shows this help text
-
-                Use /all in place of $SUMMONER_NAME to sub/unsub from all summoners
-            """
-            await ctx.send(doc_string)
-            return
-
         mentionId = ctx.author.id
         data.loadNotifyData()
 
         if action == "list":
             subs = data.getNotifyList(mentionId)
             if subs and len(subs) > 0:
-                msg = mentionUser(mentionId) + " is simping for the following summoners:"
+                msg = mentionUser(mentionId) + \
+                    " is simping for the following summoners:"
                 for summoner in subs:
                     msg += "\n" + summoner
             else:
-                msg = mentionUser(mentionId) + " is currently not simping for anyone."
+                msg = mentionUser(mentionId) + \
+                    " is currently not simping for anyone."
             await ctx.send(msg)
             return
 
@@ -298,16 +305,6 @@ def start_bot():
         if not state:
             await ctx.send("Need both state and summoner name")
             return
-
-        if state == "help":
-            doc_string = """
-                Available Commands:
-                - !stream start $SUMMONER_NAME
-                - !stream change $SUMMONER_NAME
-                - !stream stop
-                - !stream help
-            """
-            await ctx.send(doc_string)
 
         if state == "stop":
             if not stream_handler.started_streaming:
@@ -365,55 +362,39 @@ def start_bot():
             await ctx.send(f"Successfully started at https://twitch.com/dilf3")
 
     @bot.command()
-    async def flex(ctx, action = 'tag', summoner1 = None, summoner2 = None, summoner3 = None, summoner4 = None, summoner5 = None):
+    async def flex(ctx, action='tag', summoner1=None, summoner2=None, summoner3=None, summoner4=None, summoner5=None):
         def generateTag(ids):
             msg = f"Come for 5sum. We need {5 - len(flex_queue)} people. "
             for (k, v) in ids.items():
                 if k != "RedHat1":
                     msg += f"{mentionUser(v)} "
             return msg
-        
-        if action == 'help':
-            doc_string = """
-               Available Commands:
-               - $flex tag => Tag everyone not in the lobby
-               - $flex tag all => Ignore lobby members and tag everyone
-               - $flex clear => Clear out the lobby
-               - $flex add $SUMMONER_NAME1 $SUMMONER_NAME2? $SUMMONER_NAME3? $SUMMONER_NAME4? $SUMMONER_NAME5? => Add summoner's to the lobby list. Note only 1 summoner is required.
-               - $flex remove $SUMMONER_NAME1 $SUMMONER_NAME2? $SUMMONER_NAME3? $SUMMONER_NAME4? $SUMMONER_NAME5? => Remove summoner's from the lobby. Note only 1 summoner is required.
-               - $flex list => Shows who is in the lobby
-               - $flex help => Shows this help text
-
-               ? shows optional parameters.
-            """
-            await ctx.send(doc_string)
-            return
 
         if action == 'list':
             await ctx.send(f"People in lobby ({len(flex_queue)}): {flex_queue}")
             return
 
-        if action == 'tag': #tag all
+        if action == 'tag':  # tag all
             if summoner1 == 'all':
                 msg = generateTag(settings.DISCORD_IDS)
             else:
                 tags = {}
-                for (k,v) in settings.DISCORD_IDS.items():
+                for (k, v) in settings.DISCORD_IDS.items():
                     if k not in flex_queue:
                         tags[k] = v
                 msg = f"""People in lobby: {flex_queue}\n{generateTag(tags)}"""
 
             await ctx.send(msg)
             return
-        
+
         if action == 'clear':
             flex_queue.clear()
             await ctx.send("Cleared queue!")
             return
 
         if not summoner1:
-           await ctx.send("Need a summoner name!")
-           return
+            await ctx.send("Need a summoner name!")
+            return
 
         summoners = [summoner1, summoner2, summoner3, summoner4, summoner5]
 
@@ -441,10 +422,92 @@ def start_bot():
                     flex_queue.remove(summoner)
                     await ctx.send(f"Removed {summoner} from lobby.")
 
+    @bot.command()
+    async def help(ctx, command=None):
+        help_strings = {
+                'test': """No options supported. Call by itself.""",
+                'mentionMe': """No options supported. Call by itself.""",
+                'hello': """No options supported. Call by itself.""",
+                'clash': """No options supported. Call by itself.""",
+                'mmr': """Availaible Commands:
+                        - $mmr $SUMMONER_NAME
+                        - $mmr $SUMMONER_NAME --history""",
+                'summon': """Availaible Commands: """,
+                'rank': """Availaible Commands:
+                        - $mmr $SUMMONER_NAME
+                        """,
+                'lp': """Availaible Commands:
+                        - $mmr $SUMMONER_NAME
+                        """,
+                'elo': """Availaible Commands:
+                        - $mmr $SUMMONER_NAME
+                        """,
+                'notify': """
+                        Available Commands:
+                            - $notify add $SUMMONER_NAME  =>  Subscribe to summoner's notify list
+                            - $notify remove $SUMMONER_NAME  =>  Unsubscribe from summoner's notify list
+                            - $notify list  =>  List your current subscriptions
+
+                        Use /all in place of $SUMMONER_NAME to sub/unsub from all summoners
+                """,
+                'stream': """
+                    Available Commands:
+                    - $stream start $SUMMONER_NAME => Start a stream for the summoner
+                    - $stream change $SUMMONER_NAME => Change a stream for a summoner to a different game
+                    - $stream stop => Stop streaming
+                    - $stream help => Start streaming
+                """,
+                'flex': """
+                        Available Commands:
+                        - $flex tag => Tag everyone not in the lobby
+                        - $flex tag all => Ignore lobby members and tag everyone
+                        - $flex clear => Clear out the lobby
+                        - $flex add $SUMMONER_NAME1 $SUMMONER_NAME2? $SUMMONER_NAME3? $SUMMONER_NAME4? $SUMMONER_NAME5? => Add summoner's to the lobby list. Note only 1 summoner is required.
+                        - $flex remove $SUMMONER_NAME1 $SUMMONER_NAME2? $SUMMONER_NAME3? $SUMMONER_NAME4? $SUMMONER_NAME5? => Remove summoner's from the lobby. Note only 1 summoner is required.
+                        - $flex list => Shows who is in the lobby
+                        - $flex help => Shows this help text
+                        ? shows optional parameters.
+
+                """,
+                'start': """""",
+                'stop': """""",
+            }
+
+        default_string = """Availaible commands:
+        1. (debug) $test => Send a test message containing some debug information about the message.
+        2. (debug) $mentionMe => Mention yourself
+        3. (debug) $hello => Send a hello message
+        4. $clash => Get clash dates
+        5. $mmr => Get your approximate MMR
+        6. $summon => Summon a random summoner to play ranked
+        7. $rank => Get a summoners rank
+        8. $lp => Get a summoners LP gain
+        9. $elo => Get the elo a summoner is in
+        10. $notify => Get tagged when a summoner is in game
+        11. (non-functional) $stream => Stream a ranked game
+        12. $flex => Tag people not in lobby to join for 5sum
+        13. (admin only) (does not work XD) $start => Start the bot
+        14. (admin only) $stop => stop the bot
+        15. $help => This help list
+
+        Run "$help $COMMAND_NAME" to get information on how to run that command.
+        """
+
+        if not command:
+            await ctx.send(default_string)
+            return
+
+        if command and command not in help_strings:
+            await ctx.send("Wrong command name.")
+            await ctx.send(default_string)
+            return
+
+        await ctx.send(help_strings[command])
+
     def is_admin():
         def predicate(ctx):
             return ctx.message.author.id == settings.DISCORD_IDS["sardaddy"] or ctx.message.author.id == settings.DISCORD_IDS["Nashweed"]
-        
+
         return commands.check(predicate)
 
     @bot.command()
@@ -457,5 +520,6 @@ def start_bot():
     async def stop(ctx):
         os.system("pm2 stop LeagueDiscordBot")
 
+    SendMessage(msg = "```$help to get help on using different commands```")
     bot.run(settings.DISCORD_APP_TOKEN)
     print("Discord Bot Started!")

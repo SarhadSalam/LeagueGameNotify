@@ -41,13 +41,16 @@ class Summoner():
             self.CurrentRank = newRank
             return 3
 
-        newTier, newDivision = newRank["tier"], newRank["division"]
-        tier, division = self.CurrentRank["tier"], self.CurrentRank["division"]
+        newTier, newDivision, newLp = newRank["tier"], newRank["division"], newRank["lp"]
+        tier, division, lp = self.CurrentRank["tier"], self.CurrentRank["division"], self.CurrentRank["lp"]
 
         change = 0
         if consts.TIERS.index(tier) == consts.TIERS.index(newTier):
             if consts.DIVISIONS.index(division) == consts.DIVISIONS.index(newDivision):
-                change = 0
+                if newLp != lp:
+                    change = 3
+                else:
+                    change = 0
             elif consts.DIVISIONS.index(division) < consts.DIVISIONS.index(newDivision):
                 change = 1
             else:

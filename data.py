@@ -172,7 +172,9 @@ def addToAllNotifyList(user):
     saveNotifyData()
 
 def getRandomSummoner():
-    return random.choice(settings.SUMMONER_NAMES)
+    names = settings.SUMMONER_NAMES
+    names.remove("RedHat1")
+    return random.choice(names)
 
 def getDiscordIdFromSummonerName(summonerName):
     if summonerName in settings.DISCORD_IDS:

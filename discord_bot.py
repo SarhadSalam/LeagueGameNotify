@@ -16,8 +16,10 @@ COMMAND_TIMESTAMPS = {}
 
 # Webhook discord message bot
 
-
 def SendMessage(msg, color=None, postMsg=None):
+    if not settings.PROD_MODE:
+        return
+
     msgText = msg
     if postMsg is not None:
         msgText += "\n" + postMsg
@@ -134,8 +136,8 @@ def start_bot():
 
     @bot.command()
     async def mmr(ctx, summonerName=None, option=None):
-        if not (summonerName := await handleSummonerNameInput(ctx, summonerName)):
-            return
+        # if not (summonerName := await handleSummonerNameInput(ctx, summonerName)):
+            # return
         uri = api_calls.MMR_URI.format(summonerName=summonerName)
         response = api_calls.call_api(uri)
         if response and response.status_code == 200:
@@ -408,9 +410,17 @@ def start_bot():
             if not summoner:
                 continue
 
-            if summoner not in settings.SUMMONER_NAMES:
-                await ctx.send(f"{summoner} is not one of the bois.")
+            if summoner == "me":
+                if ctx.message.author.id not in settings.SUMMONER_BY_DISCORD_IDS:
+                    await ctx.send(f"{ctx.message.author.name} is not one of the bois.")
+                    continue
+
+                summoner = settings.SUMMONER_BY_DISCORD_IDS[ctx.author.id]
+
+            if not await handleSummonerNameInput(ctx, summoner):
                 return
+
+            summoner = summoner.lower()
 
             if action == 'add':
                 if len(flex_queue) >= 5:
@@ -468,12 +478,12 @@ def start_bot():
                         - $flex tag => Tag everyone not in the lobby
                         - $flex tag all => Ignore lobby members and tag everyone
                         - $flex clear => Clear out the lobby
-                        - $flex add $SUMMONER_NAME1 $SUMMONER_NAME2? $SUMMONER_NAME3? $SUMMONER_NAME4? $SUMMONER_NAME5? => Add summoner's to the lobby list. Note only 1 summoner is required.
-                        - $flex remove $SUMMONER_NAME1 $SUMMONER_NAME2? $SUMMONER_NAME3? $SUMMONER_NAME4? $SUMMONER_NAME5? => Remove summoner's from the lobby. Note only 1 summoner is required.
+                        - $flex add $SUMMONER_NAME1* $SUMMONER_NAME2?* $SUMMONER_NAME3?* $SUMMONER_NAME4?* $SUMMONER_NAME5?* => Add summoner's to the lobby list. Note only 1 summoner is required.
+                        - $flex remove $SUMMONER_NAME1* $SUMMONER_NAME2?* $SUMMONER_NAME3?* $SUMMONER_NAME4?* $SUMMONER_NAME5?* => Remove summoner's from the lobby. Note only 1 summoner is required.
                         - $flex list => Shows who is in the lobby
                         - $flex help => Shows this help text
                         ? shows optional parameters.
-
+                        * represents commands that can be filled with "me" and it will add your user object
                 """,
                 'start': """""",
                 'stop': """""",

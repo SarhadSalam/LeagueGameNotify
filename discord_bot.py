@@ -206,7 +206,7 @@ def start_bot():
 
     @bot.command()
     async def summon(ctx):
-        cooldown = 5
+        cooldown = 1
         isReady = updateTimestamp("summon", ctx, cooldown)
         if isReady:
             summoner = data.getRandomSummoner()
@@ -522,7 +522,8 @@ def start_bot():
 
     def is_admin():
         def predicate(ctx):
-            return ctx.message.author.id == settings.DISCORD_IDS["sardaddy"] or ctx.message.author.id == settings.DISCORD_IDS["Nashweed"]
+            return ctx.message.author.id == settings.DISCORD_IDS["sardaddy"] or ctx.message.author.id == settings.DISCORD_IDS["Nashweed"] or ctx.message.author.id == settings.DISCORD_IDS["marginallyTall"]
+
 
         return commands.check(predicate)
 

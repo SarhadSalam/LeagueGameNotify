@@ -209,7 +209,8 @@ def start_bot():
         cooldown = 1
         isReady = updateTimestamp("summon", ctx, cooldown)
         if isReady:
-            summoner = data.getRandomSummoner()
+            skipList = ["RedHat1"]
+            summoner = data.getRandomSummoner(skipList)
             discordMentionId = data.getDiscordIdFromSummonerName(summoner)
             if discordMentionId is None:
                 await ctx.send(summoner + ", you have been summoned to play a ranked game")

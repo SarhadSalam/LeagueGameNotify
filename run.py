@@ -152,10 +152,7 @@ def notifyGameStart(summoner, gameInfo):
               summoner.SummonerDTO["name"])
 
 
-def querySummonerCurrentRank(summoner):
-    encryptedId = summoner.SummonerDTO["id"]
-    url = api_calls.BASE_API_URL + api_calls.LEAGUE_API_URL.format(encryptedSummonerId=encryptedId)
-    response = call_api(url)
+def updateSummonerCurrentRank(response):
     if response and response.status_code == 200:
         leagueEntrySet = response.json()
         rank = {}
@@ -190,10 +187,7 @@ def querySummonerCurrentRank(summoner):
             requestDataSave()
 
 
-def querySummonerCurrentGame(summoner):
-    encryptedId = summoner.SummonerDTO["id"]
-    url = api_calls.BASE_API_URL + api_calls.SPECTATOR_API_URL.format(encryptedSummonerId=encryptedId)
-    response = call_api(url)
+def updateSummonerCurrentGame(response):
     if response and response.status_code == 200:
         # Current Game Found
         newGameInfo = response.json()
@@ -213,8 +207,13 @@ def run(summonerData):
     print("Querying Data For Summoners =>", current_time)
     for summonerName in summonerData:
         summoner = summonerData[summonerName]
-        querySummonerCurrentGame(summoner)
-        querySummonerCurrentRank(summoner)
+        encryptedId = summoner.SummonerDTO["id"]
+        gameUrl = api_calls.BASE_API_URL + api_calls.SPECTATOR_API_URL.format(encryptedSummonerId=encryptedId)
+        rankUrl = api_calls.BASE_API_URL + api_calls.LEAGUE_API_URL.format(encryptedSummonerId=encryptedId)
+        gameResponse = call_api(gameUrl)
+        rankResponse = call_api(rankUrl)
+        updateSummonerCurrentGame(gameResponse)
+        updateSummonerCurrentRank(rankResponse)
 
     if needsSave:
         saveSummonerData()

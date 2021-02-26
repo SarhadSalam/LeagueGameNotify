@@ -148,6 +148,7 @@ def start_bot():
             mmr_data = response.json()
             msg = summonerName + "'s MMR:\n  Ranked: "
             avg = mmr_data["ranked"]["avg"]
+            file_name = None
             if not avg:
                 msg += "N/A."
             else:
@@ -181,17 +182,12 @@ def start_bot():
                         low = []
 
                         for entry in timeline:
-                            val = entry["avg"]
-
                             avg.append(entry["avg"])
                             high.append(int(entry["avg"]) + int(entry["err"]))
                             low.append(int(entry["avg"]) - int(entry["err"]))
 
                             timestamp.append(
                                 datetime.utcfromtimestamp(entry["timestamp"]))
-
-                            if val:
-                                msg += str(val) + " -> "
 
                         plt.plot_date(
                             timestamp, avg, label=f"Average", linestyle="-", color="green")
@@ -200,7 +196,7 @@ def start_bot():
                         plt.plot_date(
                             timestamp, low, label=f"Lower Range", linestyle="-", color="red")
 
-                        plt.title(f"MMR timeline for {summonerName}")
+                        plt.title(f"Ranked MMR timeline for {summonerName}")
                         plt.legend(loc="best")
                         plt.grid(True, which="major")
                         plt.grid(True, which="minor")
@@ -230,10 +226,9 @@ def start_bot():
                         msg += "Not Enough Solo Games For History"
                     else:
                         timeline.reverse()
+                        avg = []
                         for entry in timeline:
-                            val = entry["avg"]
-                            if val:
-                                msg += str(val) + " -> "
+                            avg.append(entry["avg"])
                         msg += str(avg)
 
             if file_name:

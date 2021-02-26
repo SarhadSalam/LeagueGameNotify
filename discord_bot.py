@@ -11,10 +11,13 @@ from datetime import timedelta
 import api_calls
 import re
 import os
+import matplotlib.pyplot as plt
+import random
 
 COMMAND_TIMESTAMPS = {}
 
 # Webhook discord message bot
+
 
 def SendMessage(msg, color=None, postMsg=None):
     if not settings.PROD_MODE:
@@ -71,7 +74,7 @@ def start_bot():
     import stream
 
     stream_handler = stream.StreamHandler()
-    bot = commands.Bot(command_prefix='$', help_command = None)
+    bot = commands.Bot(command_prefix='$', help_command=None)
     flex_queue = []
 
     data.load()
@@ -137,7 +140,7 @@ def start_bot():
     @bot.command()
     async def mmr(ctx, summonerName=None, option=None):
         # if not (summonerName := await handleSummonerNameInput(ctx, summonerName)):
-            # return
+        # return
         uri = api_calls.MMR_URI.format(summonerName=summonerName)
         response = api_calls.call_api(uri)
         if response and response.status_code == 200:
@@ -153,7 +156,7 @@ def start_bot():
                 date = (datetime.utcfromtimestamp(ts) -
                         timedelta(hours=5)).strftime('%d %b %Y at %I:%M %p')
                 msg += str(avg) + " +/- " + str(err) + \
-                " (Last Updated " + date + ")"
+                    " (Last Updated " + date + ")"
                 try:
                     summaryText = mmr_data["ranked"]["summary"]
                     pattern = "(.+)\<b\>(.+)\<\/b\>.*\<\/span>(.*)"
@@ -172,10 +175,42 @@ def start_bot():
                         msg += "Not Enough Solo Games For History"
                     else:
                         timeline.reverse()
+                        avg = []
+                        timestamp = []
+                        high = []
+                        low = []
+
                         for entry in timeline:
                             val = entry["avg"]
+
+                            avg.append(entry["avg"])
+                            high.append(int(entry["avg"]) + int(entry["err"]))
+                            low.append(int(entry["avg"]) - int(entry["err"]))
+
+                            timestamp.append(
+                                datetime.utcfromtimestamp(entry["timestamp"]))
+
                             if val:
                                 msg += str(val) + " -> "
+
+                        plt.plot_date(
+                            timestamp, avg, label=f"Average", linestyle="-", color="green")
+                        plt.plot_date(
+                            timestamp, high, label=f"Higher Range", linestyle="-", color="blue")
+                        plt.plot_date(
+                            timestamp, low, label=f"Lower Range", linestyle="-", color="red")
+
+                        plt.title(f"MMR timeline for {summonerName}")
+                        plt.legend(loc="best")
+                        plt.grid(True, which="major")
+                        plt.grid(True, which="minor")
+                        plt.xticks(rotation=45)
+
+                        file_name = f"{summonerName}_{random.randint(0, 1000000000000000)}.png"
+                        plt.savefig(
+                            file_name, bbox_inches='tight', pad_inches=0)
+                        plt.clf()
+
                         msg += str(avg)
             msg += "\n  Gayram: "
             avg = mmr_data["ARAM"]["avg"]
@@ -187,7 +222,7 @@ def start_bot():
                 date = (datetime.utcfromtimestamp(ts) -
                         timedelta(hours=5)).strftime('%d %b %Y at %I:%M %p')
                 msg += str(avg) + " +/- " + str(err) + \
-                " (Last Updated " + date + ")"
+                    " (Last Updated " + date + ")"
                 if history:
                     msg += "\n    History: "
                     timeline = mmr_data["ARAM"]["historical"]
@@ -200,7 +235,12 @@ def start_bot():
                             if val:
                                 msg += str(val) + " -> "
                         msg += str(avg)
-            await ctx.send(msg)
+
+            if file_name:
+                await ctx.send(msg, file=discord.File(file_name))
+                os.remove(file_name)
+            else:
+                await ctx.send(msg)
         else:
             await ctx.send("Failed to obtain mmr data for " + summonerName + ".")
 
@@ -228,7 +268,7 @@ def start_bot():
             return
         msg = summonerName + " is currently " + \
             currentRank["tier"] + " " + currentRank["division"] + \
-                " " + str(currentRank["lp"]) + "lp."
+            " " + str(currentRank["lp"]) + "lp."
         if "miniSeries" in currentRank:
             wins = str(currentRank["miniSeries"]["wins"])
             loss = str(CurrentRank["miniSeries"]["losses"])
@@ -387,7 +427,7 @@ def start_bot():
                 for (k, v) in settings.DISCORD_IDS.items():
                     if k not in flex_queue:
                         tags[k] = v
-                
+
                 if len(flex_queue) < 5:
                     msg = f"""People in lobby: {flex_queue}\n{generateTag(tags)}"""
                 else:
@@ -442,24 +482,24 @@ def start_bot():
     @bot.command()
     async def help(ctx, command=None):
         help_strings = {
-                'test': """No options supported. Call by itself.""",
-                'mentionMe': """No options supported. Call by itself.""",
-                'hello': """No options supported. Call by itself.""",
-                'clash': """No options supported. Call by itself.""",
-                'mmr': """Availaible Commands:
+            'test': """No options supported. Call by itself.""",
+            'mentionMe': """No options supported. Call by itself.""",
+            'hello': """No options supported. Call by itself.""",
+            'clash': """No options supported. Call by itself.""",
+            'mmr': """Availaible Commands:
                         - $mmr $SUMMONER_NAME
                         - $mmr $SUMMONER_NAME --history""",
-                'summon': """Availaible Commands: """,
-                'rank': """Availaible Commands:
+            'summon': """Availaible Commands: """,
+            'rank': """Availaible Commands:
                         - $mmr $SUMMONER_NAME
                         """,
-                'lp': """Availaible Commands:
+            'lp': """Availaible Commands:
                         - $mmr $SUMMONER_NAME
                         """,
-                'elo': """Availaible Commands:
+            'elo': """Availaible Commands:
                         - $mmr $SUMMONER_NAME
                         """,
-                'notify': """
+            'notify': """
                         Available Commands:
                             - $notify add $SUMMONER_NAME  =>  Subscribe to summoner's notify list
                             - $notify remove $SUMMONER_NAME  =>  Unsubscribe from summoner's notify list
@@ -467,14 +507,14 @@ def start_bot():
 
                         Use /all in place of $SUMMONER_NAME to sub/unsub from all summoners
                 """,
-                'stream': """
+            'stream': """
                     Available Commands:
                     - $stream start $SUMMONER_NAME => Start a stream for the summoner
                     - $stream change $SUMMONER_NAME => Change a stream for a summoner to a different game
                     - $stream stop => Stop streaming
                     - $stream help => Start streaming
                 """,
-                'flex': """
+            'flex': """
                         Available Commands:
                         - $flex tag => Tag everyone not in the lobby
                         - $flex tag all => Ignore lobby members and tag everyone
@@ -486,9 +526,9 @@ def start_bot():
                         ? shows optional parameters.
                         * represents commands that can be filled with "me" and it will add your user object
                 """,
-                'start': """""",
-                'stop': """""",
-            }
+            'start': """""",
+            'stop': """""",
+        }
 
         default_string = """Availaible commands:
         1. (debug) $test => Send a test message containing some debug information about the message.
@@ -525,7 +565,6 @@ def start_bot():
         def predicate(ctx):
             return ctx.message.author.id == settings.DISCORD_IDS["sardaddy"] or ctx.message.author.id == settings.DISCORD_IDS["Nashweed"] or ctx.message.author.id == settings.DISCORD_IDS["marginallyTall"]
 
-
         return commands.check(predicate)
 
     @bot.command()
@@ -537,11 +576,11 @@ def start_bot():
     @is_admin()
     async def stop(ctx):
         os.system("pm2 stop LeagueDiscordBot")
-    
+
     @bot.event
     async def on_ready():
         await bot.change_presence(activity=discord.Game(name="with Lucky's Mom"))
 
-    SendMessage(msg = "```$help to get help on using different commands```")
+    SendMessage(msg="```$help to get help on using different commands```")
     bot.run(settings.DISCORD_APP_TOKEN)
     print("Discord Bot Started!")

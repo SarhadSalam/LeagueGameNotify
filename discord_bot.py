@@ -254,20 +254,29 @@ def start_bot():
 
     @bot.command()
     async def rank(ctx, summonerName=None):
-        if not (summonerName := await handleSummonerNameInput(ctx, summonerName)):
-            return
+        if summonerName == "all" or not summonerName:
+            summonerName = settings.SUMMONER_NAMES[:]
+        else:
+            summonerName = [summonerName]
+
         data.loadSummonerData()
-        currentRank = data.getSummoner(summonerName).CurrentRank
-        if currentRank is None:
-            await ctx.send(summonerName + " is unranked.")
-            return
-        msg = summonerName + " is currently " + \
-            currentRank["tier"] + " " + currentRank["division"] + \
-            " " + str(currentRank["lp"]) + "lp."
-        if "miniSeries" in currentRank:
-            wins = str(currentRank["miniSeries"]["wins"])
-            loss = str(CurrentRank["miniSeries"]["losses"])
-            msg += "\nHe is " + wins + "-" + losses + " in promos."
+        msg = ""
+        for summoner in summonerName:
+            if not (summoner := await handleSummonerNameInput(ctx, summoner)):
+                continue
+            currentRank = data.getSummoner(summoner).CurrentRank
+            if currentRank is None:
+                msg += f"{summoner} is unranked.\n"
+                continue
+            msg += f"{summoner} is currently {currentRank['tier']} {currentRank['division']} {str(currentRank['lp'])}lp."
+
+            if "miniSeries" in currentRank:
+                wins = str(currentRank["miniSeries"]["wins"])
+                loss = str(CurrentRank["miniSeries"]["losses"])
+                msg += f" Curretly in promos (wins/losses): {wins}/{losses}."
+
+            msg += "\n"
+
         await ctx.send(msg)
         return
 

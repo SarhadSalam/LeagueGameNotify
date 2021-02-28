@@ -496,6 +496,7 @@ def start_bot():
             'summon': """Availaible Commands: """,
             'rank': """Availaible Commands:
                         - $mmr $SUMMONER_NAME
+                        - $mmr all
                         """,
             'lp': """Availaible Commands:
                         - $mmr $SUMMONER_NAME
@@ -580,6 +581,14 @@ def start_bot():
     @is_admin()
     async def stop(ctx):
         os.system("pm2 stop LeagueDiscordBot")
+
+    @bot.command()
+    @is_admin()
+    async def logs(ctx):
+        file_name = "/root/.pm2/logs/LeagueDiscordBot-error-0.log"
+        t = time.ctime(os.path.getmtime(file_name))
+        await ctx.send(f"Log file last updated on: {t}", file=discord.File(file_name))
+
 
     @bot.event
     async def on_ready():

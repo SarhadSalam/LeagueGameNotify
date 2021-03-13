@@ -584,8 +584,16 @@ def start_bot():
 
     @bot.command()
     @is_admin()
-    async def logs(ctx):
-        file_name = "/root/.pm2/logs/LeagueDiscordBot-error-0.log"
+    async def logs(ctx, type="-error"):
+        file_name = None
+        if type == "-error":
+            file_name = "/root/.pm2/logs/LeagueDiscordBot-error-0.log"
+        else if type == "-std":
+            file_name = "/root/.pm2/logs/LeagueDiscordBot-out-0.log"
+        else:
+            await ctx.send(f"Log file {type} not found. Please use -error or -std")
+            return
+        
         t = time.ctime(os.path.getmtime(file_name))
         await ctx.send(f"Log file last updated on: {t}", file=discord.File(file_name))
 

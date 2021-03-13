@@ -244,7 +244,7 @@ def start_bot():
         cooldown = 1
         isReady = updateTimestamp("summon", ctx, cooldown)
         if isReady:
-            skipList = ["RedHat1"]
+            skipList = ["RedHat1", "Luckuisha", "szmamjad"]
             summoner = data.getRandomSummoner(skipList)
             discordMentionId = data.getDiscordIdFromSummonerName(summoner)
             if discordMentionId is None:

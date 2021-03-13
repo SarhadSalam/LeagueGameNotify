@@ -588,7 +588,7 @@ def start_bot():
         file_name = None
         if type == "-error":
             file_name = "/root/.pm2/logs/LeagueDiscordBot-error-0.log"
-        else if type == "-std":
+        elif type == "-std":
             file_name = "/root/.pm2/logs/LeagueDiscordBot-out-0.log"
         else:
             await ctx.send(f"Log file {type} not found. Please use -error or -std")

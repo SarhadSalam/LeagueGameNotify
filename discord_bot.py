@@ -143,6 +143,8 @@ def start_bot():
     async def mmr(ctx, summonerName=None, option=None):
         # if not (summonerName := await handleSummonerNameInput(ctx, summonerName)):
         # return
+        if (name := data.getSummonerNameFromName(summonerName.lower())):
+            summonerName = name
         uri = api_calls.MMR_URI.format(summonerName=summonerName)
         response = api_calls.call_api(uri)
         if response and response.status_code == 200:

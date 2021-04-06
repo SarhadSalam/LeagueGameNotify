@@ -81,6 +81,8 @@ def start_bot():
 
     async def handleSummonerNameInput(ctx, summonerName):
         summonerName = summonerName.lower()
+        if (name := data.getSummonerNameFromName(summonerName)):
+            summonerName = name
         status = data.isKnownSummoner(summonerName)
         if status is not True:
             await ctx.send(status)
@@ -244,7 +246,7 @@ def start_bot():
         cooldown = 1
         isReady = updateTimestamp("summon", ctx, cooldown)
         if isReady:
-            skipList = ["RedHat1", "Luckuisha", "szmamjad"]
+            skipList = ["RedHat1", "szmamjad", "TheReilGabe", "One True Tatsuya"]
             summoner = data.getRandomSummoner(skipList)
             discordMentionId = data.getDiscordIdFromSummonerName(summoner)
             if discordMentionId is None:
@@ -593,7 +595,7 @@ def start_bot():
         else:
             await ctx.send(f"Log file {type} not found. Please use -error or -std")
             return
-        
+
         t = time.ctime(os.path.getmtime(file_name))
         await ctx.send(f"Log file last updated on: {t}", file=discord.File(file_name))
 

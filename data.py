@@ -180,11 +180,15 @@ def getRandomSummoner(skipList=None):
             if entry in names:
                 names.remove(entry)
         return random.choice(names)
-        
 
 def getDiscordIdFromSummonerName(summonerName):
     if summonerName in settings.DISCORD_IDS:
         return settings.DISCORD_IDS[summonerName]
+    return None
+
+def getSummonerNameFromName(name):
+    if name in settings.NAME_IDS:
+        return settings.NAME_IDS[name]
     return None
 
 def load():

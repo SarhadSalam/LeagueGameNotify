@@ -24,6 +24,3 @@ def getRankValue(rank):
     tierScore = (len(consts.DIVISIONS) + 1) * 100
     divisionScore = 100
     return tier * tierScore + division * divisionScore + lp
-
-def summonerRankCmp(summonerA, summonerB):
-    return getRankValue(summonerA.CurrentRank) - getRankValue(summonerB.CurrentRank)

@@ -3,7 +3,7 @@ from discord import Webhook, RequestsWebhookAdapter
 from discord.ext import commands
 import settings
 from utils import applyColorToMsg
-from utils import getRankValue
+from utils import getSummonerRankValue
 import data
 import stream
 import time
@@ -271,7 +271,7 @@ def start_bot():
                 continue
             summoners.append(data.getSummoner(summoner))
 
-        summoners.sort(key=getRankValue)
+        summoners.sort(key=getSummonerRankValue)
         msg = ""
         for summoner in summoners:
             currentRank = summoner.CurrentRank

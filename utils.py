@@ -24,3 +24,8 @@ def getRankValue(rank):
     tierScore = (len(consts.DIVISIONS) + 1) * 100
     divisionScore = 100
     return tier * tierScore + division * divisionScore + lp
+
+def getSummonerRankValue(summoner):
+    if summoner is None:
+        return 0
+    return getRankValue(summoner.CurrentRank)

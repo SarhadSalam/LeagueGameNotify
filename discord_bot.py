@@ -601,10 +601,41 @@ def start_bot():
         t = time.ctime(os.path.getmtime(file_name))
         await ctx.send(f"Log file last updated on: {t}", file=discord.File(file_name))
 
+    @bot.command()
+    async def bois(ctx):
+        names_nicknames = {}
+
+        for k, v in settings.NAME_IDS.items():
+            if v in names_nicknames:
+                names_nicknames[v].append(k)
+            else:
+                names_nicknames[v] = [k]
+
+        await ctx.send(f"{names_nicknames}")
 
     @bot.event
     async def on_ready():
         await bot.change_presence(activity=discord.Game(name="with Lucky's Mom"))
+
+    @bot.event
+    async def on_voice_state_update(member, before, after):
+        channel = bot.get_channel(832335754570498119)
+        # someone joined the voice channel
+        if after is not None:
+            summoner_name = settings.SUMMONER_BY_DISCORD_IDS[member.id]
+
+            summoner_to_nickname =dict((v,k) for k,v in settings.NAME_IDS.items())
+            
+            name = ""
+            if summoner_to_nickname[summoner_name]:
+                name = summoner_to_nickname[summoner_name]
+            else:
+                name = member.nick if member.nick else member.name
+
+            greeting = settings.GREETINGS[random.randrange(0, len(settings.GREETINGS) + 1)]
+            greeting = greeting.replace("$name", f"{name}")
+
+            await channel.send(greeting)
 
     SendMessage(msg="```$help to get help on using different commands```")
     bot.run(settings.DISCORD_APP_TOKEN)

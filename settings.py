@@ -17,3 +17,8 @@ GENERATED_SCRIPT_FILE = os.getenv("GENERATED_SCRIPT_FILE")
 PARENT_DRIVE = os.getenv("PARENT_DRIVE")
 DISCORD_APP_TOKEN = os.getenv("DISCORD_APP_TOKEN")
 PROD_MODE = os.getenv("PROD_MODE") == 'True'
+
+GREETINGS = []
+with open("greetings.txt", 'r') as f:
+    for greeting in f:
+        GREETINGS.append(greeting)

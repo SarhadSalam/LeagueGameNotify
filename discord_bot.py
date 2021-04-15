@@ -3,6 +3,7 @@ from discord import Webhook, RequestsWebhookAdapter
 from discord.ext import commands
 import settings
 from utils import applyColorToMsg
+from utils import summonerRankCmp
 import data
 import stream
 import time
@@ -263,12 +264,17 @@ def start_bot():
         else:
             summonerName = [summonerName]
 
+        summoners = []
         data.loadSummonerData()
-        msg = ""
         for summoner in summonerName:
             if not (summoner := await handleSummonerNameInput(ctx, summoner)):
                 continue
-            currentRank = data.getSummoner(summoner).CurrentRank
+            summoners.append(data.getSummoner(summoner))
+
+        summoners.sort(key=summonerRankCmp)
+        msg = ""
+        for summoner in summoners:
+            currentRank = summoner.CurrentRank
             if currentRank is None:
                 msg += f"{summoner} is unranked.\n"
                 continue
@@ -625,7 +631,7 @@ def start_bot():
             summoner_name = settings.SUMMONER_BY_DISCORD_IDS[member.id]
 
             summoner_to_nickname =dict((v,k) for k,v in settings.NAME_IDS.items())
-            
+
             name = ""
             if summoner_to_nickname[summoner_name]:
                 name = summoner_to_nickname[summoner_name]

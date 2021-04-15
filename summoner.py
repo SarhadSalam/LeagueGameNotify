@@ -63,7 +63,8 @@ class Summoner():
         self.CurrentRank = newRank
         return change
 
-
+    def getName(self):
+        return self.SummonerDTO["name"]
 
     def toJson(self):
         return self.__dict__

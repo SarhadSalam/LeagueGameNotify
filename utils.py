@@ -1,3 +1,5 @@
+import consts
+
 # json fallback
 def toJson(obj):
     try:

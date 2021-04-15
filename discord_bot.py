@@ -21,13 +21,12 @@ COMMAND_TIMESTAMPS = {}
 
 
 def SendMessage(msg, color=None, postMsg=None):
-    if not settings.PROD_MODE:
-        return
-
     msgText = msg
     if postMsg is not None:
         msgText += "\n" + postMsg
     print("Sending Message: ", msgText)
+    if not settings.PROD_MODE:
+        return
     if color != None:
         msg = applyColorToMsg(msg, color)
     if postMsg is not None:
@@ -271,14 +270,15 @@ def start_bot():
                 continue
             summoners.append(data.getSummoner(summoner))
 
-        summoners.sort(key=getSummonerRankValue)
+        summoners.sort(key=getSummonerRankValue, reverse=True)
         msg = ""
         for summoner in summoners:
             currentRank = summoner.CurrentRank
+            name = summoner.getName()
             if currentRank is None:
-                msg += f"{summoner} is unranked.\n"
+                msg += f"{name} is unranked.\n"
                 continue
-            msg += f"{summoner} is currently {currentRank['tier']} {currentRank['division']} {str(currentRank['lp'])}lp."
+            msg += f"{name} is currently {currentRank['tier']} {currentRank['division']} {str(currentRank['lp'])}lp."
 
             if "miniSeries" in currentRank:
                 wins = str(currentRank["miniSeries"]["wins"])

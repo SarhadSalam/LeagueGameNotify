@@ -14,6 +14,7 @@ import re
 import os
 import matplotlib.pyplot as plt
 import random
+import consts
 
 COMMAND_TIMESTAMPS = {}
 
@@ -123,8 +124,8 @@ def start_bot():
                 msg = "Current Clash Dates:"
                 for clash in clash_data:
                     ts = int(clash["schedule"][0]["registrationTime"]) // 1000
-                    date = (datetime.utcfromtimestamp(ts) -
-                            timedelta(hours=5)).strftime('%d %b %Y at %I:%M %p')
+                    date = (datetime.utcfromtimestamp(ts) +
+                            timedelta(hours=consts.TIMEZONE_DELTA)).strftime('%d %b %Y at %I:%M %p')
                     name = clash["nameKey"].capitalize(
                     ) + " Cup " + clash["nameKeySecondary"].capitalize().replace("_", " ")
                     text = "\n  " + name + " => " + date
@@ -158,8 +159,8 @@ def start_bot():
             else:
                 err = mmr_data["ranked"]["err"]
                 ts = int(mmr_data["ranked"]["timestamp"])
-                date = (datetime.utcfromtimestamp(ts) -
-                        timedelta(hours=5)).strftime('%d %b %Y at %I:%M %p')
+                date = (datetime.utcfromtimestamp(ts) +
+                        timedelta(hours=consts.TIMEZONE_DELTA)).strftime('%d %b %Y at %I:%M %p')
                 msg += str(avg) + " +/- " + str(err) + \
                     " (Last Updated " + date + ")"
                 try:
@@ -220,7 +221,7 @@ def start_bot():
                 err = mmr_data["ARAM"]["err"]
                 ts = int(mmr_data["ARAM"]["timestamp"])
                 date = (datetime.utcfromtimestamp(ts) -
-                        timedelta(hours=5)).strftime('%d %b %Y at %I:%M %p')
+                        timedelta(hours=consts.TIMEZONE_DELTA)).strftime('%d %b %Y at %I:%M %p')
                 msg += str(avg) + " +/- " + str(err) + \
                     " (Last Updated " + date + ")"
                 if history:

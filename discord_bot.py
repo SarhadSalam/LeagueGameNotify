@@ -289,8 +289,10 @@ def start_bot():
 
             if "miniSeries" in currentRank:
                 wins = str(currentRank["miniSeries"]["wins"])
-                loss = str(CurrentRank["miniSeries"]["losses"])
-                msg += f" Curretly in promos (wins/losses): {wins}/{losses}."
+                losses = str(currentRank["miniSeries"]["losses"])
+                nextRank = consts.TIERS.index(currentRank['tier'])
+                nextRank = consts.TIERS[nextRank+1]
+                msg += f" Currently {wins}-{losses} in promos to {nextRank}."
 
             msg += "\n"
 

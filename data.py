@@ -79,8 +79,9 @@ def loadChampionData():
             json_data = input_file.read()
             parsed = json.loads(json_data)
             data = parsed["data"]
-            for name in data:
-                id = int(data[name]["key"])
+            for champ in data:
+                id = int(data[champ]["key"])
+                name = data[champ]["name"]
                 CHAMPION_ID_TO_NAME[id] = name
     except FileNotFoundError:
         print("Could not find file", CHAMPION_FILE, "so champ names will show as UNKNOWN")

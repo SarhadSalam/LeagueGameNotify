@@ -355,7 +355,7 @@ def start_bot():
             if championName is not None:
                 if championName.startswith("lv"):
                     lvRequest = int(championName[2:])
-                    if lvRequest < 1 or lvRequest > 7:
+                    if lvRequest < 0 or lvRequest > 7:
                         msg = "Mastery Level {} is not valid".format(lvRequest)
                         await ctx.send(msg)
                         return
@@ -370,7 +370,7 @@ def start_bot():
                     masteryList = list(filter(lambda x, lv=lvRequest: int(x["championLevel"]) == lv, masteryList))
                     listSize = len(masteryList)
                     if listSize > MAX_LIST_SIZE:
-                        msg = "{0} has more than {1} champions at mastery level {2}. Only showing top {1} champions".format(summonerName, MAX_LIST_SIZE, lvRequest)
+                        msg = "{} has {} champions at mastery level {}. Only showing top {} champions".format(summonerName, listSize, lvRequest, MAX_LIST_SIZE)
                         listSize = MAX_LIST_SIZE
                         text = "{}'s top {} mastery level {} champions:".format(summonerName, listSize, lvRequest)
                         await ctx.send(msg)

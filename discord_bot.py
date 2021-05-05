@@ -612,18 +612,12 @@ def start_bot():
             'hello': """No options supported. Call by itself.""",
             'clash': """No options supported. Call by itself.""",
             'mmr': """Availaible Commands:
-                        - $mmr $SUMMONER_NAME
-                        - $mmr $SUMMONER_NAME --history""",
-            'summon': """Availaible Commands: """,
+                        - $mmr $SUMMONER_NAME  =>  Get MMR for summoner
+                        - $mmr $SUMMONER_NAME -history  =>  Get MMR with graph for summoner""",
+            'summon': """No options supported. Call by itself.""",
             'rank': """Availaible Commands:
-                        - $mmr $SUMMONER_NAME
-                        - $mmr all
-                        """,
-            'lp': """Availaible Commands:
-                        - $mmr $SUMMONER_NAME
-                        """,
-            'elo': """Availaible Commands:
-                        - $mmr $SUMMONER_NAME
+                        - $rank $SUMMONER_NAME  =>  Get rank of summoner
+                        - $rank  =>  Get rank of all the boiis, ordered highest to lowest
                         """,
             'notify': """
                         Available Commands:
@@ -633,13 +627,13 @@ def start_bot():
 
                         Use /all in place of $SUMMONER_NAME to sub/unsub from all summoners
                 """,
-            'stream': """
-                    Available Commands:
-                    - $stream start $SUMMONER_NAME => Start a stream for the summoner
-                    - $stream change $SUMMONER_NAME => Change a stream for a summoner to a different game
-                    - $stream stop => Stop streaming
-                    - $stream help => Start streaming
-                """,
+            #stream': """
+            #        Available Commands:
+            #        - $stream start $SUMMONER_NAME => Start a stream for the summoner
+            #        - $stream change $SUMMONER_NAME => Change a stream for a summoner to a different game
+            #        - $stream stop => Stop streaming
+            #        - $stream help => Start streaming
+            #    """,
             'flex': """
                         Available Commands:
                         - $flex tag => Tag everyone not in the lobby
@@ -652,26 +646,43 @@ def start_bot():
                         ? shows optional parameters.
                         * represents commands that can be filled with "me" and it will add your user object
                 """,
-            'start': """""",
-            'stop': """""",
+            'logs': """
+                        Available Commands:
+                            - $logs -error  =>  Dump error log (Default option if no option applied)
+                            - $logs -std  =>  Dump stdout
+                """,
+            'bois': """No options supported. Call by itself.""",
+            'mastery': """
+                        Available Commands:
+                            - $mastery $SUMMONER_NAME $ARGUMENT  =>  Get mastery points for summoner
+
+                        Possible $ARGUMENTs:
+                            - $CHAMPION_NAME  =>  Get mastery for specific champion
+                            - $X  =>  Get top X champions by mastery points (max 25)
+                            - lv$X  =>  Get all (max top 25) mastery level X champions
+
+                        examples:
+                            $mastery sardaddy garen  =>  Garen mastery for sardaddy
+                            $mastery nashweed 8  =>  nashweed's top 8 champions
+                            $mastery marginallyTall lv7  =>  marginallyTall's mastery level 7 champions
+                """,
+
         }
 
         default_string = """Availaible commands:
-        1. (debug) $test => Send a test message containing some debug information about the message.
-        2. (debug) $mentionMe => Mention yourself
-        3. (debug) $hello => Send a hello message
-        4. $clash => Get clash dates
-        5. $mmr => Get your approximate MMR
-        6. $summon => Summon a random summoner to play ranked
-        7. $rank => Get a summoners rank
-        8. $lp => Get a summoners LP gain
-        9. $elo => Get the elo a summoner is in
-        10. $notify => Get tagged when a summoner is in game
-        11. (non-functional) $stream => Stream a ranked game
-        12. $flex => Tag people not in lobby to join for 5sum
-        13. (admin only) (does not work XD) $start => Start the bot
-        14. (admin only) $stop => stop the bot
-        15. $help => This help list
+        01. (debug) $test => Send a test message containing some debug information about the message.
+        02. (debug) $mentionMe => Mention yourself
+        03. (debug) $hello => Send a hello message
+        04. $clash => Get clash dates
+        05. $mmr => Get your approximate MMR
+        06. $summon => Summon a random summoner to play ranked
+        07. $rank => Get a summoners rank
+        08. $notify => Get tagged when a summoner is in game
+        09. $flex => Tag people not in lobby to join for 5sum
+        10. $logs => Dump debug logs
+        11. $bois => List known summoners
+        12. $mastery => Get mastery information for a summoner's champions
+        13. $help => This help list
 
         Run "$help $COMMAND_NAME" to get information on how to run that command.
         """

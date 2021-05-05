@@ -14,6 +14,7 @@ NOTIFY_DATA_FILE = "notifyMe.json"
 
 SUMMONER_DATA = {}
 CHAMPION_ID_TO_NAME = {}
+CHAMPION_NAME_TO_ID = {}
 CHAMPION_NAME_TO_CRINGE_NAME = {}
 NOTIFY_DATA = {}
 
@@ -73,6 +74,7 @@ def getSummoner(summonerName):
 
 def loadChampionData():
     CHAMPION_ID_TO_NAME.clear()
+    CHAMPION_NAME_TO_ID.clear()
     CHAMPION_NAME_TO_CRINGE_NAME.clear()
     try:
         with open(CHAMPION_FILE, "r", encoding="utf8") as input_file:
@@ -83,6 +85,9 @@ def loadChampionData():
                 id = int(data[champ]["key"])
                 name = data[champ]["name"]
                 CHAMPION_ID_TO_NAME[id] = name
+                CHAMPION_NAME_TO_ID[champ.lower()] = id
+                if champ != name:
+                    CHAMPION_NAME_TO_ID[name.lower()] = id
     except FileNotFoundError:
         print("Could not find file", CHAMPION_FILE, "so champ names will show as UNKNOWN")
     try:
@@ -106,6 +111,13 @@ def getChampionName(championId):
             return championName
     else:
         return "UNKNOWN"
+
+def getChampionId(championName):
+    name = championName.lower()
+    if name in CHAMPION_NAME_TO_ID:
+        return CHAMPION_NAME_TO_ID[name]
+    else:
+        return None
 
 def loadNotifyData():
     global NOTIFY_DATA

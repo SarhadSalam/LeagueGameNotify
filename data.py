@@ -119,6 +119,9 @@ def getChampionId(championName):
     else:
         return None
 
+def getNumChampions():
+    return len(CHAMPION_ID_TO_NAME)
+
 def loadNotifyData():
     global NOTIFY_DATA
     NOTIFY_DATA.clear()

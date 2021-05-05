@@ -367,15 +367,21 @@ def start_bot():
             if response and response.status_code == 200:
                 masteryList = response.json()
                 if lvRequest is not False:
-                    masteryList = list(filter(lambda x, lv=lvRequest: int(x["championLevel"]) == lv, masteryList))
-                    listSize = len(masteryList)
-                    if listSize > MAX_LIST_SIZE:
-                        msg = "{} has {} champions at mastery level {}. Only showing top {} champions".format(summonerName, listSize, lvRequest, MAX_LIST_SIZE)
-                        listSize = MAX_LIST_SIZE
-                        text = "{}'s top {} mastery level {} champions:".format(summonerName, listSize, lvRequest)
-                        await ctx.send(msg)
+                    if lvRequest == 0:
+                        numChampions = data.getNumChampions()
+                        m0Champs = numChampions - len(masteryList)
+                        text = "{} has {} mastery level {} champions:".format(summonerName, m0Champs, lvRequest)
+                        listSize = 0
                     else:
-                        text = "{} has {} mastery level {} champions:".format(summonerName, listSize, lvRequest)
+                        masteryList = list(filter(lambda x, lv=lvRequest: int(x["championLevel"]) == lv, masteryList))
+                        listSize = len(masteryList)
+                        if listSize > MAX_LIST_SIZE:
+                            msg = "{} has {} champions at mastery level {}. Only showing top {} champions".format(summonerName, listSize, lvRequest, MAX_LIST_SIZE)
+                            listSize = MAX_LIST_SIZE
+                            text = "{}'s top {} mastery level {} champions:".format(summonerName, listSize, lvRequest)
+                            await ctx.send(msg)
+                        else:
+                            text = "{} has {} mastery level {} champions:".format(summonerName, listSize, lvRequest)
                 else:
                     if listSize > MAX_LIST_SIZE:
                         msg = "Requested larger than max list size of {0}. Only showing top {0} champions".format(MAX_LIST_SIZE)

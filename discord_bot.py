@@ -80,14 +80,20 @@ def start_bot():
 
     data.load()
 
-    async def handleSummonerNameInput(ctx, summonerName):
+    async def handleSummonerNameInput(ctx, summonerName, knownRequired=True):
+        if summonerName is None:
+            await ctx.send("Please input a summoner name")
+            return None
         summonerName = summonerName.lower()
         if (name := data.getSummonerNameFromName(summonerName)):
             summonerName = name
         status = data.isKnownSummoner(summonerName)
         if status is not True:
-            await ctx.send(status)
-            return None
+            if not knownRequired:
+                return summonerName
+            else:
+                await ctx.send(status)
+                return None
         else:
             return data.getSummonerName(summonerName)
 
@@ -142,10 +148,8 @@ def start_bot():
 
     @bot.command()
     async def mmr(ctx, summonerName=None, option=None):
-        # if not (summonerName := await handleSummonerNameInput(ctx, summonerName)):
-        # return
-        if (name := data.getSummonerNameFromName(summonerName.lower())):
-            summonerName = name
+        if not (summonerName := await handleSummonerNameInput(ctx, summonerName, knownRequired=False)):
+            return
         uri = api_calls.MMR_URI.format(summonerName=summonerName)
         response = api_calls.call_api(uri)
         if response and response.status_code == 200:

@@ -371,6 +371,14 @@ def start_bot():
                         numChampions = data.getNumChampions()
                         m0Champs = numChampions - len(masteryList)
                         text = "{} has {} mastery level {} champions:".format(summonerName, m0Champs, lvRequest)
+                        mList = []
+                        for masteryData in masteryList:
+                            championId = int(masteryData["championId"])
+                            mList.append(championId)
+                        for id in data.CHAMPION_ID_TO_NAME:
+                            if id not in mList:
+                                text += "\n  " + data.getChampionName(id)
+
                         listSize = 0
                     else:
                         masteryList = list(filter(lambda x, lv=lvRequest: int(x["championLevel"]) == lv, masteryList))

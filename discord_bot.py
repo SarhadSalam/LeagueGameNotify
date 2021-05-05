@@ -357,6 +357,7 @@ def start_bot():
                     lvRequest = int(championName[2:])
                     if lvRequest < 1 or lvRequest > 7:
                         msg = "Mastery Level {} is not valid".format(lvRequest)
+                        await ctx.send(msg)
                         return
                 else:
                     listSize = int(championName)

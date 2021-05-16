@@ -20,23 +20,11 @@ def getCurrentDDVersion():
             json_data = input_file.read()
             parsed = json.loads(json_data)
             version = parsed["version"]
+            CURRENT_VERSION = version
             return version
     except FileNotFoundError:
         print("Could not find file", filename)
         return None
-
-def isNewVersionAvailable():
-    latestVersion = getLatestDDVersion()
-    if latestVersion is None:
-        print("Error obtaining latest version")
-        return None
-    currentVersion = getCurrentDDVersion()
-    if latestVersion != currentVersion:
-        print("Found new version")
-        return latestVersion
-    else:
-        print("No new version available")
-        return False
 
 def updateDDVersionFiles(forceUpdate=False):
     status = ""

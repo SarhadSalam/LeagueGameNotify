@@ -738,6 +738,14 @@ def start_bot(parent_comm_queue):
     async def update(ctx, option=None):
         forceUpdate = False
         forceFlags = ["f", "-f", "--f", "/f"]
+        versionFlags = ["v", "-v", "--v", "/v"]
+        if option in versionFlags:
+            currentVersion = data_updater.getCurrentVersion()
+            if currentVersion is not None:
+                await ctx.send(f"Current DD Version: {currentVersion}")
+            else:
+                await ctx.send("Error obtaining current DD Version")
+            return
         if option in forceFlags:
             forceUpdate = True
         elif option is not None:

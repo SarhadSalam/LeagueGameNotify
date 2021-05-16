@@ -11,12 +11,14 @@ CLASH_API_URI = "/lol/clash/v1/tournaments"
 CHAMPION_MASTERY_ALL_URI = "/lol/champion-mastery/v4/champion-masteries/by-summoner/{encryptedSummonerId}"
 CHAMPION_MASTERY_CHAMP_URI = "/lol/champion-mastery/v4/champion-masteries/by-summoner/{encryptedSummonerId}/by-champion/{championId}"
 MATCH_HISTORY_URI = "https://matchhistory.na.leagueoflegends.com/en/#match-details/NA1/{gameId}/{playerCode}"
+CHAMPION_DATA_URL = "http://ddragon.leagueoflegends.com/cdn/{version}/data/en_US/champion.json"
+VERSION_URL = "https://ddragon.leagueoflegends.com/api/versions.json"
 
 MMR_URI = "https://na.whatismymmr.com/api/v1/summoner?name={summonerName}"
 
 def call_api(url):
     try:
-        if not url.startswith("https:"):
+        if not url.startswith("http"):
             url = BASE_API_URL + url
         response = requests.get(url, headers={consts.API_KEY_HEADER: settings.API_KEY})
         return response

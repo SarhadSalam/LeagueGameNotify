@@ -5,6 +5,7 @@ import settings
 from utils import applyColorToMsg
 from utils import getSummonerRankValue
 import data
+import data_updater
 import stream
 import time
 from datetime import datetime
@@ -15,6 +16,7 @@ import os
 import matplotlib.pyplot as plt
 import random
 import consts
+from multiprocessing import Queue
 
 COMMAND_TIMESTAMPS = {}
 
@@ -64,7 +66,7 @@ def clearTimestamp(command):
 # League Assistant Bot
 
 
-def start_bot():
+def start_bot(parent_comm_queue):
     import discord
     from discord import Webhook, RequestsWebhookAdapter
     from discord.ext import commands
@@ -730,6 +732,43 @@ def start_bot():
     @is_admin()
     async def stop(ctx):
         os.system("pm2 stop LeagueDiscordBot")
+
+    @bot.command()
+    @is_admin()
+    async def update(ctx, option=None):
+        forceUpdate = False
+        forceFlags = ["f", "-f", "--f", "/f"]
+        if option in forceFlags:
+            forceUpdate = True
+        elif option is not None:
+            await ctx.send(f"Incorrect flag: '{option}'")
+            return
+        success, status = data_updater.updateDDVersionFiles(forceUpdate)
+        if success:
+            parent_comm_queue.put("updateData")
+        await ctx.send(status)
+
+    @bot.command()
+    @is_admin()
+    async def reload(ctx, option=None):
+        summonerReloadFlags = ["s", "-s", "--s", "summoner", "-summoner", "--summoner"]
+        championReloadFlags = ["c", "-c", "--c", "champion", "-champion", "--champion"]
+        if option in summonerReloadFlags:
+            data_updater.reloadSummonerData()
+            parent_comm_queue.put(("reloadData", ("s",)))
+            await ctx.send("Reloaded Summoner Data")
+            return
+        if option in championReloadFlags:
+            data_updater.reloadChampionData()
+            parent_comm_queue.put(("reloadData", ("c",)))
+            await ctx.send("Reloaded Champion Data")
+            return
+        if option is not None:
+            await ctx.send(f"Incorrect flag: '{option}'")
+            return
+        data_updater.reloadData()
+        parent_comm_queue.put("reloadData")
+        await ctx.send("Reloaded All Data")
 
     @bot.command()
     @is_admin()

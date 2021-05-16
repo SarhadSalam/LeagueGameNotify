@@ -1,5 +1,6 @@
 import settings
 import data
+import data_updater
 import requests
 import api_calls
 import sys
@@ -10,10 +11,11 @@ from periodic import PeriodicExecutor
 from datetime import datetime
 import signal
 from api_calls import call_api
-from multiprocessing import Process
+from multiprocessing import Process, Queue
+import bot_comms
 
 needsSave = False
-
+BOT_COMM_QUEUE = Queue()
 
 def requestDataSave():
     global needsSave
@@ -200,9 +202,30 @@ def updateSummonerCurrentGame(summoner, response):
     if status["requestSave"]:
         requestDataSave()
 
-
 def run(summonerData):
     # Need to run this loop every x mins
+    while not BOT_COMM_QUEUE.empty():
+        # Process method call request from LeagueAssistant Bot
+        request = BOT_COMM_QUEUE.get()
+        if type(request) is tuple:
+            method = request[0]
+            args = request[1] if len(request) > 1 else ()
+        elif type(request) is str:
+            method = request
+            args = ()
+        else:
+            print("Invalid Request:", request)
+            continue
+
+        if hasattr(bot_comms, method):
+            try:
+                getattr(bot_comms, method)(*args)
+            except Exception as e:
+                print(f"Could not execute method '{method}'")
+                print("Reason:", e)
+        else:
+            print("Invalid method:", method)
+
     current_time = datetime.now().strftime("%d %b %Y - %H:%M:%S")
     print("Querying Data For Summoners =>", current_time)
     for summonerName in summonerData:
@@ -238,7 +261,7 @@ if __name__ == "__main__":
     options = (["--refresh", "--r"])
     args = sys.argv[1:]
 
-    bot_process = Process(target=discord_bot.start_bot, args=())
+    bot_process = Process(target=discord_bot.start_bot, args=(BOT_COMM_QUEUE,))
     bot_process.start()
 
     if len(args) > 0:

@@ -754,7 +754,7 @@ def start_bot(parent_comm_queue):
         summonerReloadFlags = ["s", "-s", "--s", "summoner", "-summoner", "--summoner"]
         championReloadFlags = ["c", "-c", "--c", "champion", "-champion", "--champion"]
         if option in summonerReloadFlags:
-            data_updater.reloadSummonerData()
+            data_updater.reloadSummonerData(refresh=True)
             parent_comm_queue.put(("reloadData", ("s",)))
             await ctx.send("Reloaded Summoner Data")
             return
@@ -766,7 +766,7 @@ def start_bot(parent_comm_queue):
         if option is not None:
             await ctx.send(f"Incorrect flag: '{option}'")
             return
-        data_updater.reloadData()
+        data_updater.reloadData(refresh=True)
         parent_comm_queue.put("reloadData")
         await ctx.send("Reloaded All Data")
 

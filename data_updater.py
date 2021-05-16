@@ -62,12 +62,15 @@ def updateDDVersionFiles(forceUpdate=False):
         print(status)
         return True, status
 
-def reloadSummonerData():
-    data.refreshSummonerData()
+def reloadSummonerData(refresh=False):
+    if refresh:
+        data.refreshSummonerData()
+    else:
+        data.loadSummonerData()
 
 def reloadChampionData():
     data.loadChampionData()
 
-def reloadData():
-    reloadSummonerData()
+def reloadData(refresh=False):
+    reloadSummonerData(refresh)
     reloadChampionData()

@@ -12,6 +12,7 @@ def getLatestDDVersion():
         return None
 
 def getCurrentDDVersion():
+    global CURRENT_VERSION
     if CURRENT_VERSION is not None:
         return CURRENT_VERSION
     try:

@@ -15,4 +15,4 @@ def reloadData(flag=None):
     else:
         data_updater.reloadSummonerData(refresh=False)
         data_updater.reloadChampionData()
-        discord_bot.SendMessage("Reloaded All Data")
+        discord_bot.SendMessage("Reloaded Data")

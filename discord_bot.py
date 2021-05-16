@@ -759,24 +759,24 @@ def start_bot(parent_comm_queue):
     @bot.command()
     @is_admin()
     async def reload(ctx, option=None):
-        summonerReloadFlags = ["s", "-s", "--s", "summoner", "-summoner", "--summoner"]
-        championReloadFlags = ["c", "-c", "--c", "champion", "-champion", "--champion"]
-        if option in summonerReloadFlags:
-            data_updater.reloadSummonerData(refresh=True)
-            parent_comm_queue.put(("reloadData", ("s",)))
-            await ctx.send("Reloaded Summoner Data")
-            return
-        if option in championReloadFlags:
-            data_updater.reloadChampionData()
-            parent_comm_queue.put(("reloadData", ("c",)))
-            await ctx.send("Reloaded Champion Data")
-            return
-        if option is not None:
-            await ctx.send(f"Incorrect flag: '{option}'")
-            return
+        #summonerReloadFlags = ["s", "-s", "--s", "summoner", "-summoner", "--summoner"]
+        #championReloadFlags = ["c", "-c", "--c", "champion", "-champion", "--champion"]
+        #if option in summonerReloadFlags:
+        #    data_updater.reloadSummonerData(refresh=True)
+        #    parent_comm_queue.put(("reloadData", ("s",)))
+        #    await ctx.send("Reloaded Summoner Data")
+        #    return
+        #if option in championReloadFlags:
+        #    data_updater.reloadChampionData()
+        #    parent_comm_queue.put(("reloadData", ("c",)))
+        #    await ctx.send("Reloaded Champion Data")
+        #    return
+        #if option is not None:
+        #    await ctx.send(f"Incorrect flag: '{option}'")
+        #    return
         data_updater.reloadData(refresh=True)
         parent_comm_queue.put("reloadData")
-        await ctx.send("Reloaded All Data")
+        await ctx.send("Reloaded Data")
 
     @bot.command()
     @is_admin()

@@ -52,6 +52,7 @@ def updateDDVersionFiles(forceUpdate=False):
         return True, status
 
 def reloadSummonerData(refresh=False):
+    return  # Not yet supported
     if refresh:
         data.refreshSummonerData()
     else:

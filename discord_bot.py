@@ -740,7 +740,7 @@ def start_bot(parent_comm_queue):
         forceFlags = ["f", "-f", "--f", "/f"]
         versionFlags = ["v", "-v", "--v", "/v"]
         if option in versionFlags:
-            currentVersion = data_updater.getCurrentVersion()
+            currentVersion = data_updater.getCurrentDDVersion()
             if currentVersion is not None:
                 await ctx.send(f"Current DD Version: {currentVersion}")
             else:

@@ -15,7 +15,8 @@ CHAMPION_DATA_URL = "http://ddragon.leagueoflegends.com/cdn/{version}/data/en_US
 VERSION_URL = "https://ddragon.leagueoflegends.com/api/versions.json"
 
 MMR_URI = "https://na.whatismymmr.com/api/v1/summoner?name={summonerName}"
-MOBALYTICS_MATCH_HISTORY_URL = "https://app.mobalytics.gg/lol/lc/na/{summonerName}/{gameId}?step=post-game"
+MOBALYTICS_MATCH_URL = "https://app.mobalytics.gg/lol/lc/na/{summonerName}/{gameId}?step=post-game"
+LOG_MATCH_URL = "https://www.leagueofgraphs.com/match/na/{gameId}"
 
 def call_api(url):
     try:

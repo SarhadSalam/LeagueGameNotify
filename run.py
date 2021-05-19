@@ -117,9 +117,13 @@ def notifyGameEnd(summoner, gameId):
         postMsg = None
         if matchHistoryUri is not None:
             playerCode = matchHistoryUri.split("/")[-1]
-            lolMatchHistoryUrl = api_calls.MATCH_HISTORY_URI.format(gameId=gameId, playerCode=playerCode)
-            mobalyticsUrl = api_calls.MOBALYTICS_MATCH_HISTORY_URL.format(summonerName=summoner.SummonerDTO["name"], gameId=gameId)
-            postMsg = "View Game Details Here: [LoL Match History](<{url1}>) | [Mobalytics](<{url2}>)".format(url1=lolMatchHistoryUrl, url2=mobalyticsUrl)
+            matchUrls = [\
+                ("LoL Match History", api_calls.MATCH_HISTORY_URI.format(gameId=gameId, playerCode=playerCode)),\
+                ("Mobalytics", api_calls.MOBALYTICS_MATCH_URL.format(summonerName=summoner.SummonerDTO["name"], gameId=gameId)),\
+                ("LeagueOfGraphs", api_calls.LOG_MATCH_URL.format(gameId=gameId))\
+            ]
+            urlListText = " | ".join(["[{text}](<{url}>)".format(text=item[0], url=item[1]) for item in matchUrls])
+            postMsg = "View Game Details Here: " + urlListText
         else:
             print("Error Obtaining Match Uri for match#", gameId)
 

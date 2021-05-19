@@ -843,7 +843,7 @@ def start_bot(parent_comm_queue):
                     await ctx.send(f"Failed to upload file '{filename}'. Reason: {e}")
             return
 
-        if action.lower() == "delete":
+        if action.lower() == "delete" or action.lower() == "remove":
             # delete existing file
             LOCKED_FILES = [".env", "data.json", "notifyMe.json"]   # Should not delete these files with this command
             if arg is None:

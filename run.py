@@ -13,6 +13,7 @@ import signal
 from api_calls import call_api
 from multiprocessing import Process, Queue
 import bot_comms
+import urllib
 
 needsSave = False
 BOT_COMM_QUEUE = Queue()
@@ -119,7 +120,7 @@ def notifyGameEnd(summoner, gameId):
             playerCode = matchHistoryUri.split("/")[-1]
             matchUrls = [\
                 ("LoL Match History", api_calls.MATCH_HISTORY_URI.format(gameId=gameId, playerCode=playerCode)),\
-                ("Mobalytics", api_calls.MOBALYTICS_MATCH_URL.format(summonerName=summoner.SummonerDTO["name"], gameId=gameId)),\
+                ("Mobalytics", api_calls.MOBALYTICS_MATCH_URL.format(summonerName=urllib.parse.quote(summoner.SummonerDTO["name"]), gameId=gameId)),\
                 ("LeagueOfGraphs", api_calls.LOG_MATCH_URL.format(gameId=gameId))\
             ]
             urlListText = " | ".join(["[{text}](<{url}>)".format(text=item[0], url=item[1]) for item in matchUrls])

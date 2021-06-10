@@ -359,7 +359,7 @@ def start_bot(parent_comm_queue):
             lvRequest = False
             if championName is not None:
                 if championName.startswith("lv"):
-                    lvRequest = int(re.search("\d+", x).group())
+                    lvRequest = int(re.search("\d+", championName).group())
                     if lvRequest < 0 or lvRequest > 7:
                         msg = "Mastery Level {} is not valid".format(lvRequest)
                         await ctx.send(msg)

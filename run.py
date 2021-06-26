@@ -107,7 +107,7 @@ def notifyGameEnd(summoner, gameId):
         else:
             pos = "2nd" if damageRank == 2 else "3rd" if damageRank == 3 else "4th" if damageRank == 4 else "NaN"
             dmg_text = pos + " highest in the team"
-        msg = "GAME END: {} {} a game as {}. He went {}/{}/{} with a kp of {}% and dealt {:,} damage ({}% damage share, {})"
+        msg = "GAME END: {} {} a game as {}. He went {}/{}/{} with a kp of {}% and dealt {:,} damage ({}%% damage share, {})"
         msg = msg.format(summoner.getName(), result, champion, kills, deaths, assists, kp, damage, dmg_text)
 
         # Rank Change

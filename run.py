@@ -43,6 +43,8 @@ def notifyGameEnd(summoner, gameId):
         participant = None
         lane = None
         totalKills = 0
+        totalDamage = 0
+        damageRank = 1
         team = None
         matchHistoryUri = None
         for pid in participantIDs:
@@ -59,25 +61,54 @@ def notifyGameEnd(summoner, gameId):
                 participant = p
                 team = p["teamId"]
                 break
-        for p in participants:
-            if p["teamId"] == team:
-                totalKills += int(p["stats"]["kills"])
-        lane = participant["timeline"]["lane"]
 
         # participant now has the summoner stats for the game
+
+        # personal stats
         champion = data.getChampionName(participant["championId"])
         stats = participant["stats"]
         kills = int(stats["kills"])
         deaths = int(stats["deaths"])
         assists = int(stats["assists"])
+        damage = int(stats["totalDamageDealtToChampions"])
+
+        # cumulative team stats
+        for p in participants:
+            if p["teamId"] == team:
+                totalKills += int(p["stats"]["kills"])
+                p_dmg = int(p["stats"]["totalDamageDealtToChampions"])
+                totalDamage += p_dmg
+                if p["participantId"] != participantID and p_dmg > damage:
+                    damageRank += 1
+
+        lane = participant["timeline"]["lane"]
+
+        # kp
         if totalKills > 0:
             kp = str((100 * (kills + assists)) // totalKills)
         else:
             kp = "0"
+
+        # damage share
+        if totalDamage > 0:
+            damageShare = str((100 * damage) // totalDamage)
+        else:
+            damageShare = 0
+            damageRank = 5
+
+        # Game End Stats Message
         win = stats["win"]
         result = "won" if win else "lost"
-        msg = "GAME END: " + summoner.SummonerDTO["name"] + " " + result + " a game as " + champion + ". He went " + str(
-            kills) + "/" + str(deaths) + "/" + str(assists) + " with a kp of " + kp + "%."
+        dmg_text = ""
+        if damageRank == 1:
+            dmg_text = "highest in the team"
+        elif damageRank == 5:
+            dmg_text = "lowest in the team"
+        else:
+            pos = "2nd" if damageRank == 2 else "3rd" if damageRank == 3 else "4th" if damageRank == 4 else "NaN"
+            dmg_text = pos + " highest in the team"
+        msg = "GAME END: {} {} a game as {}. He went {}/{}/{} with a kp of {}% and dealt {:,} damage ({}% damage share, {})"
+        msg = msg.format(summoner.getName(), result, champion, kills, deaths, assists, kp, damage, dmg_text)
 
         # Rank Change
         if summoner.CurrentRank != None:

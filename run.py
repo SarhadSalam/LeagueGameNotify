@@ -162,7 +162,7 @@ def notifyGameEnd(summoner, gameId):
         color = utils.ColorCodes.GREEN if win else utils.ColorCodes.RED
         discord_bot.SendMessage(msg, color, postMsg)
     else:
-        msg = "Error Obtaining Game Info for match# " + gameId + " (Game by " + summoner.SummonerDTO["name"] + ")"
+        msg = "Error Obtaining Game Info for match# " + str(gameId) + " (Game by " + summoner.SummonerDTO["name"] + ")"
         print(msg)
         discord_bot.SendMessage(msg)
 

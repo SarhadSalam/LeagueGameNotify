@@ -5,6 +5,7 @@ import settings
 from utils import applyColorToMsg
 import data
 import data_updater
+import os
 
 # Webhook discord message bot
 

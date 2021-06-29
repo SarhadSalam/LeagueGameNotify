@@ -22,13 +22,11 @@ def requestDataSave():
     global needsSave
     needsSave = True
 
-
 def saveSummonerData():
     global needsSave
     needsSave = False
     print("Saving new summoner data")
     data.saveSummonerData()
-
 
 def notifyGameEnd(summoner, gameId):
     if gameId is None:
@@ -166,7 +164,6 @@ def notifyGameEnd(summoner, gameId):
         print(msg)
         discord_bot.SendMessage(msg)
 
-
 def notifyGameStart(summoner, gameInfo):
     participants = gameInfo["participants"]
     participant = None
@@ -191,7 +188,6 @@ def notifyGameStart(summoner, gameInfo):
     else:
         print("Could not obtain participant for current game of " +
               summoner.SummonerDTO["name"])
-
 
 def updateSummonerCurrentRank(summoner, response):
     if response and response.status_code == 200:
@@ -226,7 +222,6 @@ def updateSummonerCurrentRank(summoner, response):
         if change != 0:
             # Newly assigned rank
             requestDataSave()
-
 
 def updateSummonerCurrentGame(summoner, response):
     if response and response.status_code == 200:
@@ -283,12 +278,10 @@ def run(summonerData):
     print("Query Complete.")
     # Repeat every 5 mins upto here
 
-
 def sysExit(signal, frame):
     discord_bot.SendMessage("```Bot is going to sleep.```")
     bot_process.terminate()
     sys.exit(0)
-
 
 def printHelp():
     print("The following arguments are accepted:")

@@ -1,8 +1,8 @@
 .env
 *.json
 __pycache__/*
+__pycache__
 *.txt
 !requirements.txt
-!greetings.txt
 !ecosystem.config.json
 *test*

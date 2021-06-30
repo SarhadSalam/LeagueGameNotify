@@ -16,10 +16,13 @@ import bot_comms
 import urllib
 from cogs.helpers import HelperFunctions
 import logging
+import threading
+import health
 
 needsSave = False
 BOT_COMM_QUEUE = Queue()
 helper = HelperFunctions()
+failed_game_end_ids = {}
 
 
 def requestDataSave():
@@ -34,9 +37,21 @@ def saveSummonerData():
     data.saveSummonerData()
 
 
-def notifyGameEnd(summoner, gameId):
+def notifyGameEnd(summoner, gameId, previouslyFailed=False):
+    global failed_game_end_ids
     if gameId is None:
         return
+
+    # Fix for a rare bug where match is checked before availaible on Riot API
+    if previouslyFailed:
+        if gameId in failed_game_end_ids:
+            summoner = failed_game_end_ids.pop(gameId, None)
+        else:
+            return
+
+        if summoner == None:
+            return
+
     url = api_calls.BASE_API_URL + \
         api_calls.MATCH_API_URL.format(matchId=gameId)
     response = call_api(url)
@@ -180,6 +195,7 @@ def notifyGameEnd(summoner, gameId):
             str(gameId) + " (Game by " + summoner.SummonerDTO["name"] + ")"
         logging.info(response)  # print response to see what is going on
         logging.info(msg)
+        failed_game_end_ids[gameId] = summoner
         discord_bot.SendMessage(msg)
 
 
@@ -283,8 +299,12 @@ def run(summonerData):
         else:
             logging.info(f"Invalid method: {method}")
 
+    # Update failed games from previous iteration
+    for summoner, gameId in failed_game_end_ids.items():
+        notifyGameEnd(summoner, gameId, previouslyFailed = True)
+
     current_time = datetime.now().strftime("%d %b %Y - %H:%M:%S")
-    logging.info(f"Querying Data For Summoners =>, {current_time}")
+    logging.info(f"Querying Data For Summoners => {current_time}")
     for summonerName in summonerData:
         summoner = summonerData[summonerName]
         encryptedId = summoner.SummonerDTO["id"]
@@ -379,6 +399,23 @@ if __name__ == "__main__":
     data.loadNotifyData()
     FIVE_MINUTES = 5 * 60
     TWO_MINUTES = 2 * 60
-    run_thread = PeriodicExecutor(TWO_MINUTES, run, summonerData)
+
+    # Create a health check executor
+    # Offset running by 10ish seconds
+    health_check_executor = PeriodicExecutor(
+        TWO_MINUTES + 10, health.run_health_check)
+    health_check_thread = threading.Thread(target=health_check_executor.run)
+    health_check_thread.setDaemon(True)
+    health_check_thread.setName(consts.HEALTH_CHECK_THREAD_NAME)
+
+    # Create a game checker executor
+    game_checker_exectuor = PeriodicExecutor(TWO_MINUTES, run, summonerData)
+    game_checker_thread = threading.Thread(target=game_checker_exectuor.run)
+    game_checker_thread.setDaemon(True)
+    game_checker_thread.setName(consts.GAME_CHECK_THREAD_NAME)
+
+    # Start Threads
+    game_checker_thread.start()
+    health_check_thread.start()
+
     discord_bot.SendMessage("```Bot is now awake and ready to report games```")
-    run_thread.run()

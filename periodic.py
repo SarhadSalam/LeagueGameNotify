@@ -1,6 +1,6 @@
 import threading
 import time
-
+import sys
 class PeriodicExecutor(threading.Thread):
 
     def __init__(self, sleep, func, *params):
@@ -8,7 +8,7 @@ class PeriodicExecutor(threading.Thread):
         self.func = func
         self.params = params
         self.sleep = sleep
-        threading.Thread.__init__(self, name = "PeriodicExecutor")
+        threading.Thread.__init__(self, name="PeriodicExecutor")
         self.setDaemon(True)
 
     def run(self):

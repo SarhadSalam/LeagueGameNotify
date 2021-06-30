@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 
+
 class Help(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -52,6 +53,8 @@ class Help(commands.Cog):
                         Available Commands:
                             - $logs -error  =>  Dump error log (Default option if no option applied)
                             - $logs -std  =>  Dump stdout
+                            - $logs -info =>  Dump info
+                            - $logs -error =>  Dump error
                 """,
             'bois': """No options supported. Call by itself.""",
             'mastery': """
@@ -101,5 +104,7 @@ class Help(commands.Cog):
         await ctx.send(help_strings[command])
 
 # Connect cog to bot
+
+
 def setup(bot):
     bot.add_cog(Help(bot))

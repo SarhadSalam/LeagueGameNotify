@@ -6,6 +6,7 @@ import json
 import utils
 import consts
 import random
+import logging
 
 DATA_FILE = "data.json"
 CHAMPION_FILE = "champion.json"
@@ -20,20 +21,20 @@ NOTIFY_DATA = {}
 
 def refreshSummonerData():
     SUMMONER_DATA.clear()
-    print ("Refreshing Summoner Profile Data")
+    logging.info("Refreshing Summoner Profile Data")
     for name in settings.SUMMONER_NAMES:
         url = api_calls.BASE_API_URL + api_calls.SUMMONER_API_URL.format(summonerName=name)
         response = api_calls.call_api(url)
         if response is None or response.status_code != 200:
-            print("Failed to obtain data for" + name)
-            print("Response Code:", response.status_code)
+            logging.info(f"Failed to obtain data for {name}")
+            logging.info(f"Response Code: {response.status_code}")
             continue
         SUMMONER_DATA[name.lower()] = Summoner()
         SUMMONER_DATA[name.lower()].SummonerDTO = response.json()
-    print ("Completed Refreshing Summoner Profile Data")
+    logging.info("Completed Refreshing Summoner Profile Data")
 
     saveSummonerData()
-    print("Dumped json output to", DATA_FILE)
+    logging.info(f"Dumped json output to {DATA_FILE}")
     return SUMMONER_DATA
 
 def loadSummonerData():
@@ -45,7 +46,7 @@ def loadSummonerData():
             for name in parsed:
                 SUMMONER_DATA[name.lower()] = Summoner.fromJson(parsed[name])
     except FileNotFoundError:
-        print("Could not find file", DATA_FILE)
+        logging.info(f"Could not find file {DATA_FILE}")
         return None
     return SUMMONER_DATA
 
@@ -89,7 +90,7 @@ def loadChampionData():
                 if champ != name:
                     CHAMPION_NAME_TO_ID[name.lower()] = id
     except FileNotFoundError:
-        print("Could not find file", CHAMPION_FILE, "so champ names will show as UNKNOWN")
+        logging.info(f"Could not find file {CHAMPION_FILE} so champ names will show as UNKNOWN")
     try:
         with open(CRINGE_NAMES_FILE, "r", encoding="utf8") as input_file:
             lines = input_file.readlines()
@@ -100,7 +101,7 @@ def loadChampionData():
                     cringeName = cringeName[:-1]
                 CHAMPION_NAME_TO_CRINGE_NAME[realName] = cringeName
     except FileNotFoundError:
-        print("Could not find file", CRINGE_NAMES_FILE, "so not using substituted names")
+        logging.info(f"Could not find file {CRINGE_NAMES_FILE} so not using substituted names")
 
 def getChampionName(championId):
     if championId in CHAMPION_ID_TO_NAME:
@@ -130,7 +131,7 @@ def loadNotifyData():
             json_data = input_file.read()
             NOTIFY_DATA = json.loads(json_data)
     except FileNotFoundError:
-        print("Could not find file", NOTIFY_DATA_FILE)
+        logging.info(f"Could not find file {NOTIFY_DATA_FILE}")
         return None
     return NOTIFY_DATA
 

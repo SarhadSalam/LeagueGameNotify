@@ -15,25 +15,30 @@ from multiprocessing import Process, Queue
 import bot_comms
 import urllib
 from cogs.helpers import HelperFunctions
+import logging
 
 needsSave = False
 BOT_COMM_QUEUE = Queue()
 helper = HelperFunctions()
 
+
 def requestDataSave():
     global needsSave
     needsSave = True
 
+
 def saveSummonerData():
     global needsSave
     needsSave = False
-    print("Saving new summoner data")
+    logging.info("Saving new summoner data")
     data.saveSummonerData()
+
 
 def notifyGameEnd(summoner, gameId):
     if gameId is None:
         return
-    url = api_calls.BASE_API_URL + api_calls.MATCH_API_URL.format(matchId=gameId)
+    url = api_calls.BASE_API_URL + \
+        api_calls.MATCH_API_URL.format(matchId=gameId)
     response = call_api(url)
     if response and response.status_code == 200:
         json_data = response.json()
@@ -54,8 +59,8 @@ def notifyGameEnd(summoner, gameId):
                 matchHistoryUri = pid["player"]["matchHistoryUri"]
                 break
         if participantID is None:
-            print("Could not find",
-                  summoner.SummonerDTO["name"], "in participant list")
+            logging.info(
+                f"Could not find {summoner.SummonerDTO['name']} in participant list")
         for p in participants:
             if p["participantId"] == participantID:
                 participant = p
@@ -108,12 +113,15 @@ def notifyGameEnd(summoner, gameId):
             pos = "2nd" if damageRank == 2 else "3rd" if damageRank == 3 else "4th" if damageRank == 4 else "NaN"
             dmg_text = pos + " highest in the team"
         msg = "GAME END: {} {} a game as {}. He went {}/{}/{} with a kp of {}% and dealt {:,} damage ({}% damage share, {})"
-        msg = msg.format(summoner.getName(), result, champion, kills, deaths, assists, kp, damage, damageShare, dmg_text)
+        msg = msg.format(summoner.getName(), result, champion, kills,
+                         deaths, assists, kp, damage, damageShare, dmg_text)
 
         # Rank Change
         if summoner.CurrentRank != None:
             promos = None
-            url = api_calls.BASE_API_URL + api_calls.LEAGUE_API_URL.format(encryptedSummonerId=summoner.SummonerDTO["id"])
+            url = api_calls.BASE_API_URL + \
+                api_calls.LEAGUE_API_URL.format(
+                    encryptedSummonerId=summoner.SummonerDTO["id"])
             response = call_api(url)
             if response and response.status_code == 200:
                 leagueEntrySet = response.json()
@@ -137,35 +145,43 @@ def notifyGameEnd(summoner, gameId):
                         lpDiff = prevLp - newLp
                     result = "gained" if win else "lost"
                     if promos is None or lpDiff != 0:
-                        msg += "\n" + summoner.SummonerDTO["name"] + " " + result + " " + str(lpDiff) + "lp for this game. He is currently " + str(rank["tier"]) + " " + str(rank["division"]) + " " + str(rank["lp"]) + "lp."
+                        msg += "\n" + summoner.SummonerDTO["name"] + " " + result + " " + str(lpDiff) + "lp for this game. He is currently " + str(
+                            rank["tier"]) + " " + str(rank["division"]) + " " + str(rank["lp"]) + "lp."
                     if promos is not None:
                         wins = str(promos["wins"])
                         losses = str(promos["losses"])
-                        nextRankIndex = consts.TIERS.index(summoner.CurrentRank["tier"]) + 1
+                        nextRankIndex = consts.TIERS.index(
+                            summoner.CurrentRank["tier"]) + 1
                         nextRank = consts.TIERS[nextRankIndex]
-                        msg += "\n" + summoner.SummonerDTO["name"] + " is currently " + wins + "-" + losses + " in promos to " + nextRank + "."
+                        msg += "\n" + summoner.SummonerDTO["name"] + " is currently " + \
+                            wins + "-" + losses + " in promos to " + nextRank + "."
 
         # Match History Uri:
         postMsg = None
         if matchHistoryUri is not None:
             playerCode = matchHistoryUri.split("/")[-1]
-            matchUrls = [\
-                ("LoL Match History", api_calls.MATCH_HISTORY_URI.format(gameId=gameId, playerCode=playerCode)),\
-                ("Mobalytics", api_calls.MOBALYTICS_MATCH_URL.format(summonerName=urllib.parse.quote(summoner.SummonerDTO["name"]), gameId=gameId)),\
-                ("LeagueOfGraphs", api_calls.LOG_MATCH_URL.format(gameId=gameId))\
+            matchUrls = [
+                ("LoL Match History", api_calls.MATCH_HISTORY_URI.format(
+                    gameId=gameId, playerCode=playerCode)),
+                ("Mobalytics", api_calls.MOBALYTICS_MATCH_URL.format(
+                    summonerName=urllib.parse.quote(summoner.SummonerDTO["name"]), gameId=gameId)),
+                ("LeagueOfGraphs", api_calls.LOG_MATCH_URL.format(gameId=gameId))
             ]
-            urlListText = " | ".join(["[{text}](<{url}>)".format(text=item[0], url=item[1]) for item in matchUrls])
+            urlListText = " | ".join(["[{text}](<{url}>)".format(
+                text=item[0], url=item[1]) for item in matchUrls])
             postMsg = "View Game Details Here: " + urlListText
         else:
-            print("Error Obtaining Match Uri for match#", gameId)
+            logging.info(f"Error Obtaining Match Uri for match# {gameId}")
 
         color = utils.ColorCodes.GREEN if win else utils.ColorCodes.RED
         discord_bot.SendMessage(msg, color, postMsg)
     else:
-        msg = "Error Obtaining Game Info for match# " + str(gameId) + " (Game by " + summoner.SummonerDTO["name"] + ")"
-        print(response) # print response to see what is going on
-        print(msg)
+        msg = "Error Obtaining Game Info for match# " + \
+            str(gameId) + " (Game by " + summoner.SummonerDTO["name"] + ")"
+        logging.info(response)  # print response to see what is going on
+        logging.info(msg)
         discord_bot.SendMessage(msg)
+
 
 def notifyGameStart(summoner, gameInfo):
     participants = gameInfo["participants"]
@@ -181,7 +197,8 @@ def notifyGameStart(summoner, gameInfo):
             summoner.SummonerDTO["name"] + \
             " has started a ranked game as " + champion + "!"
         data.loadNotifyData()
-        notifyList = data.getNotifyListForSummoner(summoner.SummonerDTO["name"])
+        notifyList = data.getNotifyListForSummoner(
+            summoner.SummonerDTO["name"])
         postMsg = None
         if notifyList and len(notifyList) > 0:
             postMsg = "Notifying Simps:"
@@ -189,8 +206,9 @@ def notifyGameStart(summoner, gameInfo):
                 postMsg += " " + helper.mentionUser(user)
         discord_bot.SendMessage(msg, utils.ColorCodes.YELLOW, postMsg)
     else:
-        print("Could not obtain participant for current game of " +
-              summoner.SummonerDTO["name"])
+        logging.info(
+            f"Could not obtain participant for current game of {summoner.SummonerDTO['name']}")
+
 
 def updateSummonerCurrentRank(summoner, response):
     if response and response.status_code == 200:
@@ -226,6 +244,7 @@ def updateSummonerCurrentRank(summoner, response):
             # Newly assigned rank
             requestDataSave()
 
+
 def updateSummonerCurrentGame(summoner, response):
     if response and response.status_code == 200:
         # Current Game Found
@@ -239,6 +258,7 @@ def updateSummonerCurrentGame(summoner, response):
     if status["requestSave"]:
         requestDataSave()
 
+
 def run(summonerData):
     # Need to run this loop every x mins
     while not BOT_COMM_QUEUE.empty():
@@ -251,25 +271,27 @@ def run(summonerData):
             method = request
             args = ()
         else:
-            print("Invalid Request:", request)
+            logging.info(f"Invalid Request: {request}")
             continue
 
         if hasattr(bot_comms, method):
             try:
                 getattr(bot_comms, method)(*args)
             except Exception as e:
-                print(f"Could not execute method '{method}'")
-                print("Reason:", e)
+                logging.info(f"Could not execute method '{method}'")
+                logging.info(f"Reason:, {e}")
         else:
-            print("Invalid method:", method)
+            logging.info(f"Invalid method: {method}")
 
     current_time = datetime.now().strftime("%d %b %Y - %H:%M:%S")
-    print("Querying Data For Summoners =>", current_time)
+    logging.info(f"Querying Data For Summoners =>, {current_time}")
     for summonerName in summonerData:
         summoner = summonerData[summonerName]
         encryptedId = summoner.SummonerDTO["id"]
-        gameUrl = api_calls.BASE_API_URL + api_calls.SPECTATOR_API_URL.format(encryptedSummonerId=encryptedId)
-        rankUrl = api_calls.BASE_API_URL + api_calls.LEAGUE_API_URL.format(encryptedSummonerId=encryptedId)
+        gameUrl = api_calls.BASE_API_URL + \
+            api_calls.SPECTATOR_API_URL.format(encryptedSummonerId=encryptedId)
+        rankUrl = api_calls.BASE_API_URL + \
+            api_calls.LEAGUE_API_URL.format(encryptedSummonerId=encryptedId)
         gameResponse = call_api(gameUrl)
         rankResponse = call_api(rankUrl)
         updateSummonerCurrentGame(summoner, gameResponse)
@@ -278,22 +300,60 @@ def run(summonerData):
     if needsSave:
         saveSummonerData()
 
-    print("Query Complete.")
+    logging.info("Query Complete.")
     # Repeat every 5 mins upto here
+
 
 def sysExit(signal, frame):
     discord_bot.SendMessage("```Bot is going to sleep.```")
     bot_process.terminate()
     sys.exit(0)
 
+
 def printHelp():
     print("The following arguments are accepted:")
     print("  --refresh, --r: Refresh Summoner Data Before Running")
     print()
 
+
+def configure_logger():
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.DEBUG)
+
+    # Log to stdout
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setLevel(logging.INFO)  # Keep at info
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    handler.setFormatter(formatter)
+    root_logger.addHandler(handler)
+
+    # Log to file - ALL Debug Info
+    handler = logging.FileHandler(
+        filename='debug.log', mode='a', encoding='utf-8')
+    handler.setLevel(logging.DEBUG)
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    handler.setFormatter(formatter)
+    root_logger.addHandler(handler)
+
+    # Log to file - Only Info Info (this is more useful tbh, the other one shows)
+    # information for other libraries too which might not be the most helpful
+    handler = logging.FileHandler(
+        filename='info.log', mode='a', encoding='utf-8')
+    handler.setLevel(logging.INFO)
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    handler.setFormatter(formatter)
+    root_logger.addHandler(handler)
+
+
 if __name__ == "__main__":
     signal.signal(signal.SIGINT, sysExit)
+    configure_logger()
+
     options = (["--refresh", "--r"])
+
     args = sys.argv[1:]
 
     bot_process = Process(target=discord_bot.start_bot, args=(BOT_COMM_QUEUE,))
@@ -312,7 +372,8 @@ if __name__ == "__main__":
             sys.exit()
     summonerData = data.loadSummonerData()
     if summonerData is None:
-        print("No summoner data file found. Refreshing summoner data to generate data")
+        logging.info(
+            "No summoner data file found. Refreshing summoner data to generate data")
         summonerData = data.refreshSummonerData()
     data.loadChampionData()
     data.loadNotifyData()

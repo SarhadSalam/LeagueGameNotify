@@ -1,6 +1,7 @@
 import consts
 import settings
 import requests
+import logging
 
 BASE_API_URL="https://na1.api.riotgames.com"
 SUMMONER_API_URL = "/lol/summoner/v4/summoners/by-name/{summonerName}"
@@ -24,6 +25,7 @@ def call_api(url):
             url = BASE_API_URL + url
         response = requests.get(url, headers={consts.API_KEY_HEADER: settings.API_KEY})
         return response
-    except:
-        print("Connection Error. Skipping Request")
+    except Exception as e:
+        logging.error(e)
+        logging.error("Connection Error. Skipping Request")
         return None

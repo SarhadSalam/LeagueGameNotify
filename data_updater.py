@@ -1,6 +1,7 @@
 import data
 import api_calls
 import json
+import logging
 
 CURRENT_VERSION = None
 
@@ -24,7 +25,7 @@ def getCurrentDDVersion():
             CURRENT_VERSION = version
             return version
     except FileNotFoundError:
-        print("Could not find file", filename)
+        logging.info(f"Could not find file: {filename}")
         return None
 
 def updateDDVersionFiles(forceUpdate=False):
@@ -32,13 +33,13 @@ def updateDDVersionFiles(forceUpdate=False):
     latestVersion = getLatestDDVersion()
     if latestVersion is None:
         status = "Error obtaining latest version"
-        print(status)
+        logging.info(status)
         return False, status
     if not forceUpdate:
         currentVersion = getCurrentDDVersion()
         if latestVersion == currentVersion:
             status = "No new version available"
-            print(status)
+            logging.info(status)
             return False, status
     url = api_calls.CHAMPION_DATA_URL.format(version=latestVersion)
     response = api_calls.call_api(url)
@@ -48,7 +49,7 @@ def updateDDVersionFiles(forceUpdate=False):
         CURRENT_VERSION = latestVersion
         reloadChampionData()
         status = "Updated DD to version " + CURRENT_VERSION
-        print(status)
+        logging.info(status)
         return True, status
 
 def reloadSummonerData(refresh=False):

@@ -5,7 +5,7 @@ import settings
 import pylivestream.api as pls
 from multiprocessing import Process
 import psutil
-
+import logging
 
 class StreamHandler:
     def __init__(self):
@@ -49,7 +49,7 @@ class StreamHandler:
         self.stream_process.start()
 
     def _startSharingScreen(self, userId, gameId):
-        print("Started sharing screen")
+        logging.info("Started sharing screen")
         self._generateScriptFile(userId, gameId)
         self._runGeneratedScript()
         pls.stream_screen(ini_file="pylivestream.ini",
@@ -62,7 +62,7 @@ class StreamHandler:
             if p.name() == process_name:
                 p.terminate()
 
-        print("Client Killing Complete")
+        logging.info("Client Killing Complete")
 
     def _killStream(self):
         process_name = "ffmpeg.exe"
@@ -73,17 +73,17 @@ class StreamHandler:
             if p.name() == process_name or p.name() == "Ffmpeg.exe":
                 p.terminate()
 
-        print("Stream Killing Complete")
+        logging.info("Stream Killing Complete")
 
     def changeStream(self, game, userId):
         self._killLeagueClient()
         self._generateScriptFile(userId, gameId)
         self._runGeneratedScript()
-        print("Finished changing streams")
+        logging.info("Finished changing streams")
 
     def stopStreaming(self):
         if not self.started_streaming or not self.stream_process:
-            print("Stream process is NONE and/or not streaming but tried stopping")
+            logging.info("Stream process is NONE and/or not streaming but tried stopping")
             return
         self._killStream()
         self.stream_process = None
@@ -91,4 +91,4 @@ class StreamHandler:
         # kill league client as well:
         self._killLeagueClient()
         self.started_streaming = False
-        print("League Client Killed")
+        logging.info("League Client Killed")

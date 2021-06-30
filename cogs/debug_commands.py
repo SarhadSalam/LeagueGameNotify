@@ -9,10 +9,10 @@ class DebugCommandSuite(commands.Cog):
     # Commands
     @commands.command()
     async def test(self, ctx):
-        logging.debug("Received message:", ctx.message.content)
-        logging.debug("Message Object:", ctx.message)
-        logging.debug("Message Author Object:", ctx.author)
-        logging.debug("Message Attachments:", ctx.message.attachments)
+        logging.info(f"Received message: {ctx.message.content}")
+        logging.info(f"Message Object: {ctx.message}")
+        logging.info(f"Message Author Object: {ctx.author}")
+        logging.info(f"Message Attachments: {ctx.message.attachments}")
         await ctx.send("Received test message: " + ctx.message.content)
 
     @commands.command()

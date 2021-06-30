@@ -6,14 +6,16 @@ from utils import applyColorToMsg
 import data
 import data_updater
 import os
+import logging
 
 # Webhook discord message bot
+
 
 def SendMessage(msg, color=None, postMsg=None):
     msgText = msg
     if postMsg is not None:
         msgText += "\n" + postMsg
-    print("Sending Message: ", msgText)
+    logging.info(f"Sending Message: {msgText}")
     if not settings.PROD_MODE:
         return
     if color != None:
@@ -25,6 +27,7 @@ def SendMessage(msg, color=None, postMsg=None):
     webhook.send(msg)
 
 # League Assistant Bot
+
 
 def start_bot(parent_comm_queue):
     bot = commands.Bot(command_prefix='$', help_command=None)
@@ -77,4 +80,4 @@ def start_bot(parent_comm_queue):
 
     SendMessage(msg="```$help to get help on using different commands```")
     bot.run(settings.DISCORD_APP_TOKEN)
-    print("Discord Bot Started!")
+    logging.info("Discord Bot Started!")

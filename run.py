@@ -14,9 +14,11 @@ from api_calls import call_api
 from multiprocessing import Process, Queue
 import bot_comms
 import urllib
+from cogs.helpers import HelperFunctions
 
 needsSave = False
 BOT_COMM_QUEUE = Queue()
+helper = HelperFunctions()
 
 def requestDataSave():
     global needsSave
@@ -161,6 +163,7 @@ def notifyGameEnd(summoner, gameId):
         discord_bot.SendMessage(msg, color, postMsg)
     else:
         msg = "Error Obtaining Game Info for match# " + str(gameId) + " (Game by " + summoner.SummonerDTO["name"] + ")"
+        print(response) # print response to see what is going on
         print(msg)
         discord_bot.SendMessage(msg)
 
@@ -183,7 +186,7 @@ def notifyGameStart(summoner, gameInfo):
         if notifyList and len(notifyList) > 0:
             postMsg = "Notifying Simps:"
             for user in notifyList:
-                postMsg += " " + discord_bot.mentionUser(user)
+                postMsg += " " + helper.mentionUser(user)
         discord_bot.SendMessage(msg, utils.ColorCodes.YELLOW, postMsg)
     else:
         print("Could not obtain participant for current game of " +

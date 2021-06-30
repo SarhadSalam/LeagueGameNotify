@@ -18,7 +18,7 @@ class Process(commands.Cog, HelperFunctions):
 
     @commands.command()
     async def stop(self, ctx):
-        os.system("pm2 restart LeagueDiscordBot")
+        os.system("pm2 stop LeagueDiscordBot")
 
 # Connect cog to bot
 def setup(bot):

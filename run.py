@@ -300,7 +300,7 @@ def run(summonerData):
             logging.info(f"Invalid method: {method}")
 
     # Update failed games from previous iteration
-    for summoner, gameId in failed_game_end_ids.items():
+    for gameId, summoner in failed_game_end_ids.items():
         notifyGameEnd(summoner, gameId, previouslyFailed = True)
 
     current_time = datetime.now().strftime("%d %b %Y - %H:%M:%S")

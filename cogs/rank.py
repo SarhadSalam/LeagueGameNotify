@@ -13,8 +13,11 @@ class Rank(commands.Cog, HelperFunctions):
     # Commands
     @commands.command()
     async def rank(self, ctx, summonerName=None):
+        boosted_monkeys = ["siddvader333", "sardaddy", "One True Tatsuya", "Luckuisha"]
         if summonerName == "all" or not summonerName:
             summonerName = settings.SUMMONER_NAMES[:]
+        elif summonerName == "boosted":
+            summonerName = [x for x in settings.SUMMONER_NAMES[:] if x in boosted_monkeys]
         else:
             summonerName = [summonerName]
 
@@ -33,7 +36,10 @@ class Rank(commands.Cog, HelperFunctions):
             if currentRank is None:
                 msg += f"{name} is unranked.\n"
                 continue
-            msg += f"{name} is currently {currentRank['tier']} {currentRank['division']} {str(currentRank['lp'])}lp."
+            if name in boosted_monkeys:
+                msg += f"{name} is currently boosted to {currentRank['tier']} {currentRank['division']} {str(currentRank['lp'])}lp."
+            else:
+                msg += f"{name} is currently {currentRank['tier']} {currentRank['division']} {str(currentRank['lp'])}lp."
 
             if "miniSeries" in currentRank:
                 wins = str(currentRank["miniSeries"]["wins"])

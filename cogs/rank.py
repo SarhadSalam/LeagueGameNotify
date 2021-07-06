@@ -18,6 +18,8 @@ class Rank(commands.Cog, HelperFunctions):
             summonerName = settings.SUMMONER_NAMES[:]
         elif summonerName == "boosted":
             summonerName = [x for x in settings.SUMMONER_NAMES[:] if x in boosted_monkeys]
+        elif summonerName == "!boosted" or summonerName == "true":
+            summonerName = [x for x in settings.SUMMONER_NAMES[:] if x not in boosted_monkeys]
         else:
             summonerName = [summonerName]
 

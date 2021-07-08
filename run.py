@@ -22,7 +22,7 @@ import health
 needsSave = False
 BOT_COMM_QUEUE = Queue()
 helper = HelperFunctions()
-failed_game_end_ids = {}
+failed_game_end_ids = set()
 
 
 def requestDataSave():
@@ -37,20 +37,9 @@ def saveSummonerData():
     data.saveSummonerData()
 
 
-def notifyGameEnd(summoner, gameId, previouslyFailed=False):
-    global failed_game_end_ids
+def notifyGameEnd(summoner, gameId, previouslyFailedCount=0):
     if gameId is None:
         return
-
-    # Fix for a rare bug where match is checked before availaible on Riot API
-    if previouslyFailed:
-        if gameId in failed_game_end_ids:
-            summoner = failed_game_end_ids.pop(gameId, None)
-        else:
-            return
-
-        if summoner == None:
-            return
 
     url = api_calls.BASE_API_URL + \
         api_calls.MATCH_API_URL.format(matchId=gameId)
@@ -191,11 +180,16 @@ def notifyGameEnd(summoner, gameId, previouslyFailed=False):
         color = utils.ColorCodes.GREEN if win else utils.ColorCodes.RED
         discord_bot.SendMessage(msg, color, postMsg)
     else:
-        msg = "Error Obtaining Game Info for match# " + \
+        msg = "Try #" + str(previouslyFailedCount + 1 ) +": Error Obtaining Game Info for match# " + \
             str(gameId) + " (Game by " + summoner.SummonerDTO["name"] + ")"
+        
+        if previouslyFailedCount > 3:
+            msg += " Stopping trying, match query failed. Look into it."
+        else:
+            failed_game_end_ids.add((gameId, summoner, previouslyFailedCount + 1))
+
         logging.info(response)  # print response to see what is going on
         logging.info(msg)
-        failed_game_end_ids[gameId] = summoner
         discord_bot.SendMessage(msg)
 
 
@@ -300,8 +294,9 @@ def run(summonerData):
             logging.info(f"Invalid method: {method}")
 
     # Update failed games from previous iteration
-    for gameId, summoner in failed_game_end_ids.items():
-        notifyGameEnd(summoner, gameId, previouslyFailed = True)
+    while failed_game_end_ids:
+        gameId, summoner, previouslyFailedCount = failed_game_end_ids.pop()
+        notifyGameEnd(summoner, gameId, previouslyFailedCount + 1)
 
     current_time = datetime.now().strftime("%d %b %Y - %H:%M:%S")
     logging.info(f"Querying Data For Summoners => {current_time}")

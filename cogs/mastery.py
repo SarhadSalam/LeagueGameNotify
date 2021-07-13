@@ -3,6 +3,7 @@ from discord.ext import commands
 from .helpers import HelperFunctions
 import data
 import api_calls
+import re
 
 
 class Mastery(commands.Cog, HelperFunctions):

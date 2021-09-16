@@ -343,14 +343,14 @@ def configure_logger():
     handler.setFormatter(formatter)
     root_logger.addHandler(handler)
 
-    # Log to file - ALL Debug Info
-    handler = logging.FileHandler(
-        filename='debug.log', mode='a', encoding='utf-8')
-    handler.setLevel(logging.DEBUG)
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    handler.setFormatter(formatter)
-    root_logger.addHandler(handler)
+    # Log to file - ALL Debug Info - Disable Files too large
+    # handler = logging.FileHandler(
+    #    filename='debug.log', mode='a', encoding='utf-8')
+    # handler.setLevel(logging.DEBUG)
+    # formatter = logging.Formatter(
+    #    '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    # handler.setFormatter(formatter)
+    # root_logger.addHandler(handler)
 
     # Log to file - Only Info Info (this is more useful tbh, the other one shows)
     # information for other libraries too which might not be the most helpful

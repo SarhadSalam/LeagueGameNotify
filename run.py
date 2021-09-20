@@ -48,7 +48,7 @@ def notifyGameEnd(summoner, gameId, previouslyFailedCount=0):
     response = call_api(url)
     if response and response.status_code == 200:
         json_data = response.json()
-        participants = json_data["participants"]
+        participants = json_data["info"]["participants"]
         participantID = None
         participant = None
         lane = None

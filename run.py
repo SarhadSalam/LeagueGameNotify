@@ -43,13 +43,12 @@ def notifyGameEnd(summoner, gameId, previouslyFailedCount=0):
     if gameId is None:
         return
 
-    url = api_calls.BASE_API_URL + \
+    url = api_calls.BASE_API_URL_V5 + \
         api_calls.MATCH_API_URL.format(matchId=gameId)
     response = call_api(url)
     if response and response.status_code == 200:
         json_data = response.json()
         participants = json_data["participants"]
-        participantIDs = json_data["participantIdentities"]
         participantID = None
         participant = None
         lane = None
@@ -57,21 +56,17 @@ def notifyGameEnd(summoner, gameId, previouslyFailedCount=0):
         totalDamage = 0
         damageRank = 1
         team = None
-        matchHistoryUri = None
-        for pid in participantIDs:
-            summonerId = pid["player"]["summonerId"]
-            if summonerId == summoner.SummonerDTO["id"]:
-                participantID = pid["participantId"]
-                matchHistoryUri = pid["player"]["matchHistoryUri"]
+
+        for p in participants:
+            if p["summonerId"] == summoner.SummonerDTO["id"]:
+                summonerId = p["summonerId"]
+                participantID = p["participantId"]
+                participant = p
+                team = p["teamId"]
                 break
         if participantID is None:
             logging.info(
                 f"Could not find {summoner.SummonerDTO['name']} in participant list")
-        for p in participants:
-            if p["participantId"] == participantID:
-                participant = p
-                team = p["teamId"]
-                break
 
         # participant now has the summoner stats for the game
 
@@ -164,31 +159,27 @@ def notifyGameEnd(summoner, gameId, previouslyFailedCount=0):
 
         # Match History Uri:
         postMsg = None
-        if matchHistoryUri is not None:
-            playerCode = matchHistoryUri.split("/")[-1]
-            matchUrls = [
-                ("LoL Match History", api_calls.MATCH_HISTORY_URI.format(
-                    gameId=gameId, playerCode=playerCode)),
-                ("Mobalytics", api_calls.MOBALYTICS_MATCH_URL.format(
-                    summonerName=urllib.parse.quote(summoner.SummonerDTO["name"]), gameId=gameId)),
-                ("LeagueOfGraphs", api_calls.LOG_MATCH_URL.format(gameId=gameId))
-            ]
-            urlListText = " | ".join(["[{text}](<{url}>)".format(
-                text=item[0], url=item[1]) for item in matchUrls])
-            postMsg = "View Game Details Here: " + urlListText
-        else:
-            logging.info(f"Error Obtaining Match Uri for match# {gameId}")
+
+        matchUrls = [
+            ("Mobalytics", api_calls.MOBALYTICS_MATCH_URL.format(
+                summonerName=urllib.parse.quote(summoner.SummonerDTO["name"]), gameId=gameId)),
+            ("LeagueOfGraphs", api_calls.LOG_MATCH_URL.format(gameId=gameId))
+        ]
+        urlListText = " | ".join(["[{text}](<{url}>)".format(
+            text=item[0], url=item[1]) for item in matchUrls])
+        postMsg = "View Game Details Here: " + urlListText
 
         color = utils.ColorCodes.GREEN if win else utils.ColorCodes.RED
         discord_bot.SendMessage(msg, color, postMsg)
     else:
-        msg = "Try #" + str(previouslyFailedCount + 1 ) +": Error Obtaining Game Info for match# " + \
+        msg = "Try #" + str(previouslyFailedCount + 1) + ": Error Obtaining Game Info for match# " + \
             str(gameId) + " (Game by " + summoner.SummonerDTO["name"] + ")"
-        
+
         if previouslyFailedCount > 3:
             msg += " Stopping trying, match query failed. Look into it."
         else:
-            failed_game_end_ids.add((gameId, summoner, previouslyFailedCount + 1))
+            failed_game_end_ids.add(
+                (gameId, summoner, previouslyFailedCount + 1))
 
         logging.info(response)  # print response to see what is going on
         logging.info(msg)
@@ -196,7 +187,8 @@ def notifyGameEnd(summoner, gameId, previouslyFailedCount=0):
         image_handler.get_image(gameId)
         image_handler.crop_image_post_game(gameId)
 
-        discord_bot.SendMessage(msg, file = discord.File(f"cropped_{gameId}.png"))
+        discord_bot.SendMessage(
+            msg, file=discord.File(f"cropped_{gameId}.png"))
 
         image_handler.remove_images(gameId)
 

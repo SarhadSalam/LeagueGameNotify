@@ -4,10 +4,13 @@ import requests
 import logging
 
 BASE_API_URL="https://na1.api.riotgames.com"
+BASE_API_URL_V5 = "https://americas.api.riotgames.com"
+
+
 SUMMONER_API_URL = "/lol/summoner/v4/summoners/by-name/{summonerName}"
 SPECTATOR_API_URL = "/lol/spectator/v4/active-games/by-summoner/{encryptedSummonerId}"
 LEAGUE_API_URL = "/lol/league/v4/entries/by-summoner/{encryptedSummonerId}"
-MATCH_API_URL = "/lol/match/v4/matches/{matchId}"
+MATCH_API_URL = "/lol/match/v5/matches/NA1_{matchId}"
 CLASH_API_URI = "/lol/clash/v1/tournaments"
 CHAMPION_MASTERY_ALL_URI = "/lol/champion-mastery/v4/champion-masteries/by-summoner/{encryptedSummonerId}"
 CHAMPION_MASTERY_CHAMP_URI = "/lol/champion-mastery/v4/champion-masteries/by-summoner/{encryptedSummonerId}/by-champion/{championId}"

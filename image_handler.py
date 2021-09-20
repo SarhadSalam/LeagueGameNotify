@@ -2,6 +2,7 @@ import api_calls
 from api_calls import call_api
 import json
 from PIL import Image
+import os
 
 import settings
 
@@ -35,7 +36,7 @@ def crop_image_post_game(game_id):
 
     # Setting the points for cropped image
     top = 380
-    left = 920
+    left = 520
     right = 1880
     bottom = 920
 

@@ -166,7 +166,14 @@ def notifyGameEnd(summoner, gameId, previouslyFailedCount=0):
         postMsg = "View Game Details Here: " + urlListText
 
         color = utils.ColorCodes.GREEN if win else utils.ColorCodes.RED
-        discord_bot.SendMessage(msg, color, postMsg)
+
+        image_handler.get_image(gameId)
+        image_handler.crop_image_post_game(gameId)
+
+        discord_bot.SendMessage(msg, color, postMsg,
+                                file=discord.File(f"cropped_{gameId}.png"))
+
+        image_handler.remove_images(gameId)
     else:
         msg = "Try #" + str(previouslyFailedCount + 1) + ": Error Obtaining Game Info for match# " + \
             str(gameId) + " (Game by " + summoner.SummonerDTO["name"] + ")"
@@ -180,13 +187,7 @@ def notifyGameEnd(summoner, gameId, previouslyFailedCount=0):
         logging.info(response)  # print response to see what is going on
         logging.info(msg)
 
-        image_handler.get_image(gameId)
-        image_handler.crop_image_post_game(gameId)
-
-        discord_bot.SendMessage(
-            msg, file=discord.File(f"cropped_{gameId}.png"))
-
-        image_handler.remove_images(gameId)
+        discord_bot.SendMessage(msg)
 
 
 def notifyGameStart(summoner, gameInfo):

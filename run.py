@@ -51,7 +51,6 @@ def notifyGameEnd(summoner, gameId, previouslyFailedCount=0):
         participants = json_data["info"]["participants"]
         participantID = None
         participant = None
-        lane = None
         totalKills = 0
         totalDamage = 0
         damageRank = 1
@@ -85,8 +84,6 @@ def notifyGameEnd(summoner, gameId, previouslyFailedCount=0):
                 totalDamage += p_dmg
                 if p["participantId"] != participantID and p_dmg > damage:
                     damageRank += 1
-
-        lane = participant["timeline"]["lane"]
 
         # kp
         if totalKills > 0:

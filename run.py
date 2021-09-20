@@ -72,17 +72,16 @@ def notifyGameEnd(summoner, gameId, previouslyFailedCount=0):
 
         # personal stats
         champion = data.getChampionName(participant["championId"])
-        stats = participant["stats"]
-        kills = int(stats["kills"])
-        deaths = int(stats["deaths"])
-        assists = int(stats["assists"])
-        damage = int(stats["totalDamageDealtToChampions"])
+        kills = int(participant["kills"])
+        deaths = int(participant["deaths"])
+        assists = int(participant["assists"])
+        damage = int(participant["totalDamageDealtToChampions"])
 
         # cumulative team stats
         for p in participants:
             if p["teamId"] == team:
-                totalKills += int(p["stats"]["kills"])
-                p_dmg = int(p["stats"]["totalDamageDealtToChampions"])
+                totalKills += int(p["kills"])
+                p_dmg = int(p["totalDamageDealtToChampions"])
                 totalDamage += p_dmg
                 if p["participantId"] != participantID and p_dmg > damage:
                     damageRank += 1

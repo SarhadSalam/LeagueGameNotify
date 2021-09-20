@@ -99,7 +99,7 @@ def notifyGameEnd(summoner, gameId, previouslyFailedCount=0):
             damageRank = 5
 
         # Game End Stats Message
-        win = stats["win"]
+        win = participant["win"]
         result = "won" if win else "lost"
         dmg_text = ""
         if damageRank == 1:

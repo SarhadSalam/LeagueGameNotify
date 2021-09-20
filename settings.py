@@ -18,3 +18,4 @@ PARENT_DRIVE = os.getenv("PARENT_DRIVE")
 DISCORD_APP_TOKEN = os.getenv("DISCORD_APP_TOKEN")
 PROD_MODE = os.getenv("PROD_MODE") == 'True'
 BOT_STATUS = os.getenv("BOT_STATUS")
+ENABLE_SCREENSHOT = os.getenv("ENABLE_SCREENSHOT") == 'True'

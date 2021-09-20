@@ -11,7 +11,7 @@ import logging
 # Webhook discord message bot
 
 
-def SendMessage(msg, color=None, postMsg=None):
+def SendMessage(msg, color=None, postMsg=None, file = None):
     msgText = msg
     if postMsg is not None:
         msgText += "\n" + postMsg
@@ -24,7 +24,7 @@ def SendMessage(msg, color=None, postMsg=None):
         msg += "\n" + postMsg
     webhook = Webhook.from_url(
         settings.DISCORD_WEBHOOK, adapter=RequestsWebhookAdapter())
-    webhook.send(msg)
+    webhook.send(msg, file = file)
 
 # League Assistant Bot
 

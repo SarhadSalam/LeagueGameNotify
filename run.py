@@ -18,6 +18,8 @@ from cogs.helpers import HelperFunctions
 import logging
 import threading
 import health
+import image_handler
+import discord
 
 needsSave = False
 BOT_COMM_QUEUE = Queue()
@@ -190,7 +192,13 @@ def notifyGameEnd(summoner, gameId, previouslyFailedCount=0):
 
         logging.info(response)  # print response to see what is going on
         logging.info(msg)
-        discord_bot.SendMessage(msg)
+
+        image_handler.get_image(gameId)
+        image_handler.crop_image_post_game(gameId)
+
+        discord_bot.SendMessage(msg, file = discord.File(f"cropped_{gameId}.png"))
+
+        image_handler.remove_images(gameId)
 
 
 def notifyGameStart(summoner, gameInfo):

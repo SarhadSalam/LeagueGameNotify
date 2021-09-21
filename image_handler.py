@@ -37,7 +37,7 @@ def crop_image_post_game(game_id):
     # Setting the points for cropped image
     top = 380
     left = 320
-    right = 1680
+    right = 1380
     bottom = 920
 
     img.crop((left, top, right, bottom)).save(f"cropped_{game_id}.png")

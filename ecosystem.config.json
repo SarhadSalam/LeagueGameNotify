@@ -2,7 +2,7 @@
     "apps": [{
         "name": "LeagueDiscordBot",
         "script": "run.py",
-        "cwd": "/root/LeagueGameNotify/",
+        "cwd": "/home/leaguebot/LeagueGameNotify/",
         "args": ["--r"],
         "instances": "1",
         "wait_ready": true,

@@ -20,6 +20,6 @@ jobs:
             cd LeagueGameNotify
             git pull origin master
             pip3 install -r requirements.txt
-            source ~/.bashrc
+            export PATH="/home/leaguebot/.yarn/bin:/home/leaguebot/.local/bin:$PATH"
             pm2 restart LeagueDiscordBot
             echo $(date) >> ../last_deploy

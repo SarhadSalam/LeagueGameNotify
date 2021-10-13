@@ -16,7 +16,6 @@ jobs:
      
           script: |
             echo $PATH >> xyz
-            source ~/.bashrc
-            cat ~/.bashrc
+            export PATH="/home/leaguebot/.yarn/bin:/home/leaguebot/.local/bin:$PATH"
             echo "~~~~~~~~~~~~~~~~~~~" >> xyz
             echo $PATH >> xyz

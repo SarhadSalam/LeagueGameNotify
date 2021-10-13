@@ -16,6 +16,6 @@ jobs:
      
           script: |
             echo $PATH >> xyz
-            source ~\.bashrc
+            source ~/.bashrc
             echo "~~~~~~~~~~~~~~~~~~~" >> xyz
             echo $PATH >> xyz

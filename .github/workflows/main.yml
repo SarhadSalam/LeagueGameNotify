@@ -1,7 +1,5 @@
-name: Build & Deploy
+name: Test Deploy
 on:
-  push:
-    branches: [master]
   workflow_dispatch:
     inputs:
 
@@ -17,4 +15,7 @@ jobs:
           username: ${{ secrets.SSH_USER }} 
      
           script: |
-            cat $PATH >> xyz
+            echo $PATH >> xyz
+            source ~\.bashrc
+            echo "~~~~~~~~~~~~~~~~~~~" >> xyz
+            echo $PATH >> xyz

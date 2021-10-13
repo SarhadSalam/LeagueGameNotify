@@ -15,4 +15,5 @@ jobs:
           username: ${{ secrets.SSH_USER }} 
      
           script: |
+            export PATH="/home/leaguebot/.yarn/bin:/home/leaguebot/.local/bin:$PATH"
             pm2 restart LeagueDiscordBot

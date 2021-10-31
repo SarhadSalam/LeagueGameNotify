@@ -18,13 +18,13 @@ class Logs(commands.Cog, HelperFunctions):
     async def logs(self, ctx, type="-info"):
         file_name = None
         if type == "-error":
-            file_name = "/root/.pm2/logs/LeagueDiscordBot-error-0.log"
+            file_name = "/home/leaguebot/.pm2/logs/LeagueDiscordBot-error-0.log"
         elif type == "-std":
-            file_name = "/root/.pm2/logs/LeagueDiscordBot-out-0.log"
+            file_name = "/home/leaguebot/.pm2/logs/LeagueDiscordBot-out-0.log"
         elif type == '-info':
-            file_name = "/root/LeagueGameNotify/info.log"
+            file_name = "/home/leaguebot/LeagueGameNotify/info.log"
         elif type == '-debug':
-            file_name = "/root/LeagueGameNotify/debug.log"
+            file_name = "/home/leaguebot/LeagueGameNotify/debug.log"
         else:
             await ctx.send(f"Log file {type} not found. Please use -error, -std, -info or -debug")
             return

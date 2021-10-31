@@ -43,9 +43,9 @@ def notifyGameEnd(summoner, gameId, previouslyFailedCount=0):
     if gameId is None:
         return
 
-    gameId = "NA1_" + str(gameId)   # api v5 fix
+    gameId = str(gameId)   # api v5 fix
     url = api_calls.BASE_API_URL_V5 + \
-        api_calls.MATCH_API_URL.format(matchId=gameId)
+        api_calls.MATCH_API_URL.format(matchId=f"NA1_{gameId}")
     response = call_api(url)
     if response and response.status_code == 200:
         json_data = response.json()

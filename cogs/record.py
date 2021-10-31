@@ -79,7 +79,7 @@ class Record(commands.Cog, HelperFunctions):
                         losses += 1
                         history += "L"
                     champion = participant["championName"]
-                    if champion not in championGames
+                    if champion not in championGames:
                         championGames[champion] = 0
                     championGames[champion] += 1
                 else:

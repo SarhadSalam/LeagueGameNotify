@@ -175,6 +175,11 @@ def notifyGameEnd(summoner, gameId, previouslyFailedCount=0):
                                 file=discord.File(f"cropped_{gameId}.png"))
 
         image_handler.remove_images(gameId)
+
+        # Special Naeem section xD
+        if summoner.getName() == "NaeemP" and not win and champion != "Nocturne":
+            discord_bot.SendMessage("SADGE: No Nocturne no LP. ", file=discord.File("naeem_lose.jpg"))
+
     else:
         msg = "Try #" + str(previouslyFailedCount + 1) + ": Error Obtaining Game Info for match# " + \
             str(gameId) + " (Game by " + summoner.SummonerDTO["name"] + ")"

@@ -17,7 +17,7 @@ class Record(commands.Cog, HelperFunctions):
             if not (summonerName := await self.handleSummonerNameInput(ctx, summonerName, knownRequired=True)):
                 return
 
-            MAX_NUM_GAMES = 30
+            MAX_NUM_GAMES = 50
 
             if numGames > MAX_NUM_GAMES:
                 await ctx.send("Request exceeded max number of games (" + str(MAX_NUM_GAMES) + ")")
@@ -72,34 +72,39 @@ class Record(commands.Cog, HelperFunctions):
                             break
                     if participant:
                         result = participant["win"]
+                        idx = 1
                         if result:
                             wins += 1
                             history += "W"
+                            idx = 1
                         else:
                             losses += 1
                             history += "L"
+                            idx = 2
                         champion = participant["championName"]
                         if champion not in championGames:
-                            championGames[champion] = 0
-                        championGames[champion] += 1
+                            championGames[champion] = [0, 0, 0]
+                        championGames[champion][0] += 1
+                        championGames[champion][idx] += 1
                     else:
                         unknown += 1
                 else:
                     unknown += 1
 
             totalGames = len(gameIds)
-            history = history[::-1]
-            sortedChampionGames = dict(sorted(championGames.items(), key=lambda x:x[1], reverse=True))
+            #history = history[::-1]
+            sortedChampionGames = dict(sorted(championGames.items(), key=lambda x:x[1][0], reverse=True))
 
             text = "Results for the past {} for {}:\n  Wins: {}\n  Losses: {}\n".format(totalGames, summonerName, wins, losses)
             if unknown > 0:
                 text += "  (Could not obtain results for {} games)\n".format(unknown)
-            text += "  Form (Oldest games first): {}\n".format(history)
+            text += "  Form (Recent games first): {}\n".format(history)
             if len(sortedChampionGames) > 0:
                 text += "  Played Champions:\n"
                 for champion in sortedChampionGames:
-                    pluralCheckKekw = "games" if sortedChampionGames[champion] > 1 else "game"
-                    text += "    {} ({} {})\n".format(champion, sortedChampionGames[champion], pluralCheckKekw)
+                    stats = sortedChampionGames[champion]
+                    pluralCheckKekw = "games" if stats[0] > 1 else "game"
+                    text += "    {} ({} {}, {}-{})\n".format(champion, stats[0], pluralCheckKekw, stats[1], stats[2])
 
         await ctx.send(text)
         return

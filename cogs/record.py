@@ -95,7 +95,7 @@ class Record(commands.Cog, HelperFunctions):
             #history = history[::-1]
             sortedChampionGames = dict(sorted(championGames.items(), key=lambda x:x[1][0], reverse=True))
 
-            text = "Results for the past {} for {}:\n  Wins: {}\n  Losses: {}\n".format(totalGames, summonerName, wins, losses)
+            text = "Results for the past {} games for {}:\n  Wins: {}\n  Losses: {}\n".format(totalGames, summonerName, wins, losses)
             if unknown > 0:
                 text += "  (Could not obtain results for {} games)\n".format(unknown)
             text += "  Form (Recent games first): {}\n".format(history)

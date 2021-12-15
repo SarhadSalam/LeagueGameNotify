@@ -43,8 +43,9 @@ class Aram(commands.Cog, HelperFunctions):
             if not avg:
                 msg += str(aramData["summonerName"]) + " does not have enough games played."
             else:
-                msg += str(aramData["summonerName"]) + " currently has " + str(aramData["avg"]) + " +/- " + str(aramData["avg"]) + \
-                        ", Approximately " + str(aramData["percentile"]) + " of " + str(aramData["rank"]) + " as of " + date
+                msg += str(aramData["summonerName"]) + " currently has " + str(aramData["avg"]) + " +/- " + \
+                        str(aramData["err"]) + ", Approximately " + str(aramData["percentile"]) + " of " + \
+                        str(aramData["rank"]) + " as of " + date
             
             msg += "\n"
         

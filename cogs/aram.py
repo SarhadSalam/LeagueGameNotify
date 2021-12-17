@@ -27,9 +27,12 @@ class Aram(commands.Cog, HelperFunctions):
                 err = mmr_data["ARAM"]["err"]
                 rank = mmr_data["ARAM"]["closestRank"]
                 percentile = mmr_data["ARAM"]["percentile"]
-                ts = int(mmr_data["ARAM"]["timestamp"])
-                date = (datetime.utcfromtimestamp(ts) -
-                        timedelta(hours=consts.TIMEZONE_DELTA)).strftime('%d %b %Y at %I:%M %p')
+                if mmr_data["ARAM"]["timestamp"]:
+                    ts = int(mmr_data["ARAM"]["timestamp"])
+                    date = (datetime.utcfromtimestamp(ts) -
+                            timedelta(hours=consts.TIMEZONE_DELTA)).strftime('%d %b %Y at %I:%M %p')
+                else:
+                    data = "N/A date"
                 aramMMRData.append({"summonerName": summonerName, 
                                     "avg": avg, 
                                     "err": err, 

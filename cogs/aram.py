@@ -34,7 +34,7 @@ class Aram(commands.Cog, HelperFunctions):
                 else:
                     data = "N/A date"
                 aramMMRData.append({"summonerName": summonerName, 
-                                    "avg": avg, 
+                                    "avg": avg if avg is not None else -1, 
                                     "err": err, 
                                     "rank": rank, 
                                     "percentile": percentile, 
@@ -43,7 +43,7 @@ class Aram(commands.Cog, HelperFunctions):
         aramMMRData.sort(key=lambda d: d["avg"], reverse=True)
         msg = ""
         for aramData in aramMMRData:
-            if not avg:
+            if avg == -1:
                 msg += str(aramData["summonerName"]) + " does not have enough games played."
             else:
                 msg += str(aramData["summonerName"]) + " currently has " + str(aramData["avg"]) + " +/- " + \

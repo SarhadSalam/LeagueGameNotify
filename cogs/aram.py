@@ -23,13 +23,15 @@ class Aram(commands.Cog, HelperFunctions):
             response = api_calls.call_api(uri)
             if response and response.status_code == 200:
                 mmr_data = response.json()
-                avg = mmr_data["ARAM"]["avg"]
+                avg = mmr_data["ARAM"]["avg"] if mmr_data["ARAM"]["avg"] is not None else -1
                 err = mmr_data["ARAM"]["err"]
                 rank = mmr_data["ARAM"]["closestRank"]
                 percentile = mmr_data["ARAM"]["percentile"]
-                ts = int(mmr_data["ARAM"]["timestamp"])
-                date = (datetime.utcfromtimestamp(ts) -
-                        timedelta(hours=consts.TIMEZONE_DELTA)).strftime('%d %b %Y at %I:%M %p')
+                date = None
+                if avg != -1:
+                    ts = int(mmr_data["ARAM"]["timestamp"])
+                    date = (datetime.utcfromtimestamp(ts) -
+                            timedelta(hours=consts.TIMEZONE_DELTA)).strftime('%d %b %Y at %I:%M %p')
 
                 aramMMRData.append({"summonerName": summonerName, 
                                     "avg": avg, 
@@ -39,14 +41,14 @@ class Aram(commands.Cog, HelperFunctions):
                                     "date": date})
 
         aramMMRData.sort(key=lambda d: d["avg"], reverse=True)
-        msg = ""
+        msg = "Current ARAM MMR Rank:\n"
         for aramData in aramMMRData:
-            if aramData["avg"] is None:
+            if aramData["avg"] == -1:
                 msg += str(aramData["summonerName"]) + " does not have enough games played."
             else:
-                msg += str(aramData["summonerName"]) + " currently has " + str(aramData["avg"]) + " +/- " + \
-                        str(aramData["err"]) + " MMR, Approximately " + str(aramData["percentile"]) + "% of " + \
-                        str(aramData["rank"]) + " as of " + aramData["date"]
+                msg += f"{str(aramData['summonerName']) + ': ':<22}" + str(aramData["avg"]) + " +/- " + \
+                        str(aramData["err"]) + "MMR as of " + aramData["date"] + ". (" + \
+                        str(aramData["percentile"]) + "% of " + str(aramData["rank"]) + ")"
             
             msg += "\n"
         

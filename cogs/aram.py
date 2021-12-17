@@ -27,14 +27,12 @@ class Aram(commands.Cog, HelperFunctions):
                 err = mmr_data["ARAM"]["err"]
                 rank = mmr_data["ARAM"]["closestRank"]
                 percentile = mmr_data["ARAM"]["percentile"]
-                if mmr_data["ARAM"]["timestamp"]:
-                    ts = int(mmr_data["ARAM"]["timestamp"])
-                    date = (datetime.utcfromtimestamp(ts) -
-                            timedelta(hours=consts.TIMEZONE_DELTA)).strftime('%d %b %Y at %I:%M %p')
-                else:
-                    data = "N/A date"
+                ts = int(mmr_data["ARAM"]["timestamp"])
+                date = (datetime.utcfromtimestamp(ts) -
+                        timedelta(hours=consts.TIMEZONE_DELTA)).strftime('%d %b %Y at %I:%M %p')
+
                 aramMMRData.append({"summonerName": summonerName, 
-                                    "avg": avg if avg is not None else -1, 
+                                    "avg": avg, 
                                     "err": err, 
                                     "rank": rank, 
                                     "percentile": percentile, 
@@ -43,12 +41,12 @@ class Aram(commands.Cog, HelperFunctions):
         aramMMRData.sort(key=lambda d: d["avg"], reverse=True)
         msg = ""
         for aramData in aramMMRData:
-            if avg == -1:
+            if aramData["avg"] is None:
                 msg += str(aramData["summonerName"]) + " does not have enough games played."
             else:
                 msg += str(aramData["summonerName"]) + " currently has " + str(aramData["avg"]) + " +/- " + \
-                        str(aramData["err"]) + ", Approximately " + str(aramData["percentile"]) + " of " + \
-                        str(aramData["rank"]) + " as of " + date
+                        str(aramData["err"]) + " MMR, Approximately " + str(aramData["percentile"]) + "% of " + \
+                        str(aramData["rank"]) + " as of " + aramData["date"]
             
             msg += "\n"
         

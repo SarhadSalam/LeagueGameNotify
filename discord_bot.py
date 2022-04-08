@@ -7,6 +7,7 @@ import data
 import data_updater
 import os
 import logging
+import random
 
 # Webhook discord message bot
 
@@ -73,6 +74,20 @@ def start_bot(parent_comm_queue):
         data_updater.reloadData(refresh=True)
         parent_comm_queue.put("reloadData")
         await ctx.send("Reloaded Data")
+
+    @bot.command()
+    async def randomize(ctx, list):
+        if not list:
+            return await ctx.send("Send space separated list")
+        
+        list = list.split(" ")
+
+        if not len(list):
+            return await ctx.send("List needs to contain elements")
+        
+
+        await ctx.send(f"selected: {random.choice(list)}")
+        
 
     @bot.event
     async def on_ready():

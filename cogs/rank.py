@@ -13,7 +13,7 @@ class Rank(commands.Cog, HelperFunctions):
     # Commands
     @commands.command()
     async def rank(self, ctx, summonerName=None):
-        boosted_monkeys = ["siddvader333", "sardaddy", "One True Tatsuya", "Luckuisha", "ZaldiarC137"]
+        boosted_monkeys = ["need my mermaid", "sardaddy", "One True Tatsuya", "Luckuisha", "ZaldiarC137"]
         if summonerName == "all" or not summonerName:
             summonerName = settings.SUMMONER_NAMES[:]
         elif summonerName == "boosted":

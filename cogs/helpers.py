@@ -5,10 +5,11 @@ import settings
 class HelperFunctions():
     def __init__(self):
         self.command_timestamps= {}
-    
+
     def is_admin(self, ctx):
-        return ctx.message.author.id == settings.DISCORD_IDS["sardaddy"] or ctx.message.author.id == settings.DISCORD_IDS["Nashweed"] or ctx.message.author.id == settings.DISCORD_IDS["marginallyTall"]
-   
+        #return ctx.message.author.id == settings.DISCORD_IDS["sardaddy"] or ctx.message.author.id == settings.DISCORD_IDS["Nashweed"] or ctx.message.author.id == settings.DISCORD_IDS["marginallyTall"]
+        return ctx.message.author.id in settings.ADMINS
+
     def mentionUser(self, mentionId):
         return "<@!" + str(mentionId) + ">"
 

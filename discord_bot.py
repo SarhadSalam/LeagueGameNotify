@@ -42,7 +42,7 @@ def start_bot(parent_comm_queue):
     def is_admin():
         def predicate(ctx):
             #return ctx.message.author.id == settings.DISCORD_IDS["SayNoToWards"] or ctx.message.author.id == settings.DISCORD_IDS["Nashweed"] or ctx.message.author.id == settings.DISCORD_IDS["marginallyTall"]
-            return True
+            return ctx.message.author.id in settings.ADMINS
 
         return commands.check(predicate)
 

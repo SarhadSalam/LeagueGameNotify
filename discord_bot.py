@@ -41,7 +41,8 @@ def start_bot(parent_comm_queue):
 
     def is_admin():
         def predicate(ctx):
-            return ctx.message.author.id == settings.DISCORD_IDS["SayNoToWards"] or ctx.message.author.id == settings.DISCORD_IDS["Nashweed"] or ctx.message.author.id == settings.DISCORD_IDS["marginallyTall"]
+            #return ctx.message.author.id == settings.DISCORD_IDS["SayNoToWards"] or ctx.message.author.id == settings.DISCORD_IDS["Nashweed"] or ctx.message.author.id == settings.DISCORD_IDS["marginallyTall"]
+            return True
 
         return commands.check(predicate)
 
@@ -79,15 +80,15 @@ def start_bot(parent_comm_queue):
     async def randomize(ctx, list):
         if not list:
             return await ctx.send("Send space separated list")
-        
+
         list = list.split(" ")
 
         if not len(list):
             return await ctx.send("List needs to contain elements")
-        
+
 
         await ctx.send(f"selected: {random.choice(list)}")
-        
+
 
     @bot.event
     async def on_ready():

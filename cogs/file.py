@@ -8,8 +8,8 @@ class File(commands.Cog, HelperFunctions):
         self.bot = bot
         super().__init__()
 
-    async def cog_check(self, ctx):
-        return self.is_admin(ctx)
+    #async def cog_check(self, ctx):
+    #    return self.is_admin(ctx)
 
     # Commands
     @commands.command()

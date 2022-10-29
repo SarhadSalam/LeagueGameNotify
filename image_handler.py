@@ -13,10 +13,9 @@ from selenium import webdriver
 
 
 def get_image(game_id):
-    # start display
-    if settings.ENABLE_SCREENSHOT:
-        vdisplay = Display(visible=0, size=(2560, 1440))
-        vdisplay.start()
+    # start displayca    if settings.ENABLE_SCREENSHOT:
+    vdisplay = Display(visible=0, size=(2560, 1440))
+    vdisplay.start()
 
     # start browser
     selenium = webdriver.Firefox()

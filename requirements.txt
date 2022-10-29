@@ -9,6 +9,6 @@ requests==2.25.1
 toml==0.10.2
 urllib3==1.26.3
 matplotlib==3.3.4
-selenium==3.141.0
+selenium==4.5.0
 PyVirtualDisplay==2.2
 Pillow==8.3.2

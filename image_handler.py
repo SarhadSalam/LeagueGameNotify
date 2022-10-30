@@ -18,7 +18,11 @@ def get_image(game_id):
     vdisplay.start()
 
     # start browser
-    selenium = webdriver.Firefox()
+    options = webdriver.ChromeOptions()
+    options.add_argument("--no-sandbox")
+    options.add_argument("--headless")
+    options.add_argument("--disable-dev-shm-usage")
+    selenium = webdriver.Chrome()
     selenium.maximize_window()
 
     selenium.get(f'https://www.leagueofgraphs.com/match/na/{game_id}')

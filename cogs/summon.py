@@ -3,6 +3,7 @@ from discord.ext import commands
 from .helpers import HelperFunctions
 import data
 
+
 class Summon(commands.Cog, HelperFunctions):
     def __init__(self, bot):
         self.bot = bot
@@ -14,7 +15,7 @@ class Summon(commands.Cog, HelperFunctions):
         cooldown = 1
         isReady = self.update_timestamp("summon", ctx, cooldown)
         if isReady:
-            skipList = ["RedHat1", "TheReilGabe", "One True Tatsuya"]
+            skipList = ["RedHat1", "TheReilGabe"]
             summoner = data.getRandomSummoner(skipList)
             discordMentionId = data.getDiscordIdFromSummonerName(summoner)
             if discordMentionId is None:
@@ -23,5 +24,6 @@ class Summon(commands.Cog, HelperFunctions):
                 await ctx.send(self.mentionUser(discordMentionId) + ", " + summoner + " has been summoned to play a ranked game")
 
 # Connect cog to bot
+
 def setup(bot):
     bot.add_cog(Summon(bot))
